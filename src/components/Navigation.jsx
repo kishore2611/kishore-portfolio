@@ -107,7 +107,7 @@ const Navigation = ({ theme, toggleTheme }) => {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="absolute inset-0 bg-dark-bg/95 backdrop-blur-xl"
+              className="absolute inset-0 bg-dark-bg/95"
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}

@@ -40,7 +40,7 @@ function App() {
   }, [])
 
   return (
-    <div className="relative min-h-screen bg-dark-bg/90 backdrop-blur-2xl overflow-x-hidden">
+    <div className="relative min-h-screen bg-dark-bg/90 overflow-x-hidden">
       {/* Particle Background */}
       <ParticleBackground />
 

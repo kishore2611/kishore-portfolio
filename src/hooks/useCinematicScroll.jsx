@@ -22,8 +22,8 @@ const createSectionTimeline = (section) => {
 
   tl.fromTo(
     section,
-    { autoAlpha: 0.9, y: 40, filter: 'blur(2px)' },
-    { autoAlpha: 1, y: 0, filter: 'blur(0px)', ease: 'none' },
+    { autoAlpha: 0.9, y: 40 },
+    { autoAlpha: 1, y: 0, ease: 'none' },
   )
 
   if (headline) {
@@ -38,8 +38,8 @@ const createSectionTimeline = (section) => {
   if (cards.length) {
     tl.fromTo(
       cards,
-      { y: 40, autoAlpha: 0, scale: 0.97, filter: 'blur(3px)' },
-      { y: 0, autoAlpha: 1, scale: 1, filter: 'blur(0px)', stagger: 0.08, ease: 'power3.out' },
+      { y: 40, autoAlpha: 0, scale: 0.97 },
+      { y: 0, autoAlpha: 1, scale: 1, stagger: 0.08, ease: 'power3.out' },
       0.1,
     )
   }
@@ -85,8 +85,8 @@ const createHeroTimeline = () => {
   if (heroCanvas) {
     tl.fromTo(
       heroCanvas,
-      { scale: 1, filter: 'blur(0px)' },
-      { scale: 1.05, filter: 'blur(1px)', ease: 'none' },
+      { scale: 1 },
+      { scale: 1.05, ease: 'none' },
       0,
     )
   }
@@ -170,7 +170,7 @@ const useCinematicScroll = () => {
             invalidateOnRefresh: true,
           },
         })
-        .fromTo(section, { autoAlpha: 0.8, y: 40, filter: 'blur(3px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', ease: 'none' })
+        .fromTo(section, { autoAlpha: 0.8, y: 40 }, { autoAlpha: 1, y: 0, ease: 'none' })
       })
       return () => sectionTimelines.forEach((tl) => tl.kill())
     })
