@@ -1,110 +1,117 @@
-import { useState, useEffect, useRef } from 'react'
+import { useRef, useEffect, memo } from 'react'
 import { gsap } from 'gsap'
 
-const AnimatedTechBackground = ({ mousePosition }) => {
-  const containerRef = useRef(null)
+// Pre-computed tech elements — NOT inside component to prevent recreation
+const TECH_ELEMENTS = [
+  { icon: '⚙️', x: 10, y: 20, size: 'text-6xl', depth: 3,   label: 'Node.js' },
+  { icon: '🗄️', x: 85, y: 15, size: 'text-5xl', depth: 2,   label: 'Database' },
+  { icon: '☁️', x: 15, y: 80, size: 'text-6xl', depth: 4,   label: 'Cloud' },
+  { icon: '🔗', x: 80, y: 70, size: 'text-5xl', depth: 2.5, label: 'API' },
+  { icon: '🐳', x: 45, y: 25, size: 'text-7xl', depth: 3.5, label: 'Docker' },
+  { icon: '🚀', x: 70, y: 45, size: 'text-5xl', depth: 2,   label: 'Rocket' },
+  { icon: '⚡', x: 20, y: 55, size: 'text-6xl', depth: 3,   label: 'Speed' },
+  { icon: '🔐', x: 75, y: 85, size: 'text-5xl', depth: 2.5, label: 'Security' },
+  { icon: '💾', x: 50, y: 70, size: 'text-6xl', depth: 3.5, label: 'Storage' },
+  { icon: '🧠', x: 10, y: 40, size: 'text-5xl', depth: 2,   label: 'AI' },
+]
+
+const AnimatedTechBackground = memo(({ mousePosition }) => {
   const itemsRef = useRef([])
   const orbsRef = useRef([])
+  const lastMouse = useRef({ x: 0, y: 0 })
+  const tickerRef = useRef(null)
 
-  const techElements = [
-    { icon: '⚙️', x: 10, y: 20, size: 'text-6xl', depth: 3, label: 'Node.js' },
-    { icon: '🗄️', x: 85, y: 15, size: 'text-5xl', depth: 2, label: 'Database' },
-    { icon: '☁️', x: 15, y: 80, size: 'text-6xl', depth: 4, label: 'Cloud' },
-    { icon: '🔗', x: 80, y: 70, size: 'text-5xl', depth: 2.5, label: 'API' },
-    { icon: '🐳', x: 45, y: 25, size: 'text-7xl', depth: 3.5, label: 'Docker' },
-    { icon: '🚀', x: 70, y: 45, size: 'text-5xl', depth: 2, label: 'Rocket' },
-    { icon: '⚡', x: 20, y: 55, size: 'text-6xl', depth: 3, label: 'Speed' },
-    { icon: '🔐', x: 75, y: 85, size: 'text-5xl', depth: 2.5, label: 'Security' },
-    { icon: '💾', x: 50, y: 70, size: 'text-6xl', depth: 3.5, label: 'Storage' },
-    { icon: '🧠', x: 10, y: 40, size: 'text-5xl', depth: 2, label: 'AI' },
-  ]
-
+  // Entrance animation once
   useEffect(() => {
-    // Initial entrance animation
-    gsap.fromTo(itemsRef.current, 
-      { opacity: 0, scale: 0.5 },
-      { opacity: 0.15, scale: 1, duration: 1.5, stagger: 0.1, ease: 'power4.out' }
+    const els = itemsRef.current.filter(Boolean)
+    if (!els.length) return
+
+    gsap.fromTo(
+      els,
+      { opacity: 0, scale: 0.5, y: 10 },
+      { opacity: 0.12, scale: 1, y: 0, duration: 1.5, stagger: 0.08, ease: 'power4.out', delay: 1 }
     )
   }, [])
 
+  // Throttled mouse parallax — batched into a single gsap.set call per tick
   useEffect(() => {
-    // Parallax effect based on mouse position
-    itemsRef.current.forEach((item, index) => {
-      if (!item) return
-      const element = techElements[index]
-      const offsetX = mousePosition.x * element.depth * 30
-      const offsetY = mousePosition.y * element.depth * 30
-      
-      gsap.to(item, {
-        x: offsetX,
-        y: offsetY,
-        rotationZ: (mousePosition.x + mousePosition.y) * 15,
-        duration: 0.8,
-        ease: 'power2.out'
-      })
-    })
-
-    // Glow orbs movement
-    orbsRef.current.forEach((orb, index) => {
-      if (!orb) return
-      const factor = index === 0 ? 80 : 50
-      gsap.to(orb, {
-        x: mousePosition.x * factor,
-        y: mousePosition.y * factor,
-        duration: 1.2,
-        ease: 'power2.out'
-      })
-    })
+    lastMouse.current = mousePosition
   }, [mousePosition])
 
+  useEffect(() => {
+    // One GSAP ticker subscription for all parallax — much cheaper than per-move calls
+    tickerRef.current = gsap.ticker.add(() => {
+      const { x, y } = lastMouse.current
+
+      itemsRef.current.forEach((item, i) => {
+        if (!item) return
+        const { depth } = TECH_ELEMENTS[i]
+        gsap.set(item, {
+          x: x * depth * 28,
+          y: y * depth * 28,
+          rotationZ: (x + y) * 12,
+        })
+      })
+
+      orbsRef.current.forEach((orb, i) => {
+        if (!orb) return
+        const factor = i === 0 ? 75 : 45
+        gsap.set(orb, { x: x * factor, y: y * factor })
+      })
+    })
+
+    return () => {
+      if (tickerRef.current) gsap.ticker.remove(tickerRef.current)
+    }
+  }, [])
+
   return (
-    <div ref={containerRef} className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div
+      className="fixed inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 0, contain: 'layout paint' }}
+    >
       <div className="absolute inset-0" style={{ perspective: '1200px' }}>
-        {techElements.map((element, index) => (
+        {TECH_ELEMENTS.map((el, i) => (
           <div
-            key={`${element.label}-${index}`}
-            ref={el => itemsRef.current[index] = el}
-            className={`absolute ${element.size} transition-opacity duration-500`}
+            key={el.label}
+            ref={(node) => { itemsRef.current[i] = node }}
+            className={`absolute ${el.size} will-change-transform`}
             style={{
-              left: `${element.x}%`,
-              top: `${element.y}%`,
+              left: `${el.x}%`,
+              top: `${el.y}%`,
               transform: 'translate(-50%, -50%)',
-              opacity: 0, // Handled by gsap
+              opacity: 0,
             }}
           >
-            {element.icon}
+            {el.icon}
           </div>
         ))}
       </div>
 
-      {/* Sharp Glow orbs that follow cursor - Adapts to theme */}
+      {/* Cursor glow orbs */}
       <div
-        ref={el => orbsRef.current[0] = el}
-        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none opacity-20"
+        ref={(n) => { orbsRef.current[0] = n }}
+        className="absolute w-[460px] h-[460px] rounded-full pointer-events-none will-change-transform"
         style={{
-          background: document.documentElement.dataset.theme === 'light' 
-            ? 'radial-gradient(circle, rgba(2, 132, 199, 0.2) 0%, transparent 80%)'
-            : 'radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 80%)',
-          left: '40%',
-          top: '40%',
+          background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 80%)',
+          left: '40%', top: '40%',
           transform: 'translate(-50%, -50%)',
+          opacity: 0.85,
         }}
       />
-
       <div
-        ref={el => orbsRef.current[1] = el}
-        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none opacity-25"
+        ref={(n) => { orbsRef.current[1] = n }}
+        className="absolute w-[320px] h-[320px] rounded-full pointer-events-none will-change-transform"
         style={{
-          background: document.documentElement.dataset.theme === 'light'
-            ? 'radial-gradient(circle, rgba(5, 150, 105, 0.2) 0%, transparent 80%)'
-            : 'radial-gradient(circle, rgba(0, 255, 136, 0.25) 0%, transparent 80%)',
-          left: '60%',
-          top: '30%',
+          background: 'radial-gradient(circle, rgba(0,255,136,0.22) 0%, transparent 80%)',
+          left: '60%', top: '30%',
           transform: 'translate(-50%, -50%)',
+          opacity: 0.75,
         }}
       />
     </div>
   )
-}
+})
 
+AnimatedTechBackground.displayName = 'AnimatedTechBackground'
 export default AnimatedTechBackground

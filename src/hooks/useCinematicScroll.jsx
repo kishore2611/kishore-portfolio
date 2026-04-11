@@ -1,110 +1,69 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import Lenis from 'lenis'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import Lenis from 'lenis'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const createSectionTimeline = (section) => {
-  const headline = section.querySelector('h1, h2')
-  const cards = section.querySelectorAll('.glass, .glass-card, .btn-primary, .btn-outline, .glass-button')
-  const media = section.querySelector('canvas, img, video, svg')
-
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: section,
-      start: 'top 85%',
-      end: 'bottom 20%',
-      toggleActions: 'play none none reverse',
-      invalidateOnRefresh: true,
-    },
-  })
-
-  tl.fromTo(
-    section,
-    { opacity: 0, y: 30 },
-    { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
-  )
-
-  if (headline) {
-    tl.fromTo(
-      headline,
-      { y: 20, opacity: 0, scale: 0.98 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' },
-      0.2,
-    )
-  }
-
-  if (cards.length) {
-    tl.fromTo(
-      cards,
-      { y: 30, opacity: 0, scale: 0.99 },
-      { y: 0, opacity: 1, scale: 1, stagger: 0.05, duration: 0.6, ease: 'back.out(1.2)' },
-      0.3,
-    )
-  }
-
-  if (media) {
-    tl.fromTo(
-      media,
-      { scale: 0.95, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 1, ease: 'power2.out' },
-      0.1,
-    )
-  }
-
-  return tl
-}
+// ── Easing curve (expo out — Apple-style deceleration) ─────────────────────
+const expoOut = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
 
 const useCinematicScroll = () => {
+  const lenisRef = useRef(null)
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    // Create ONE Lenis instance, tuned for Apple-style scroll feel
     const lenis = new Lenis({
-      duration: 1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smooth: true,
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smoothTouch: false,
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1.5,
+      duration: 1.1,
+      easing: expoOut,
+      smoothTouch: false,      // Native touch is already smooth
+      wheelMultiplier: 0.95,   // Slightly reduced wheel sensitivity
+      touchMultiplier: 1.3,
       infinite: false,
-      lerp: 0.1, // Added for extra smoothness
+      prevent: (node) =>
+        node.classList.contains('no-smooth-scroll') ||
+        node.tagName === 'TEXTAREA' ||
+        node.tagName === 'INPUT',
     })
 
-    let rafId = null
-    const raf = (time) => {
-      lenis.raf(time)
-      rafId = requestAnimationFrame(raf)
-    }
-    rafId = requestAnimationFrame(raf)
+    lenisRef.current = lenis
 
-    lenis.on('scroll', () => {
-      ScrollTrigger.update()
+    // Sync Lenis with GSAP ScrollTrigger using gsap.ticker
+    // This is the OFFICIAL recommended integration — single rAF, no conflicts
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000) // GSAP ticker gives seconds, Lenis wants ms
     })
+    gsap.ticker.lagSmoothing(0) // Disable GSAP lag smoothing for scroll sync
 
-    const mm = gsap.matchMedia()
+    // Keep ScrollTrigger in sync with Lenis position
+    lenis.on('scroll', ScrollTrigger.update)
 
-    mm.add('(min-width: 768px)', () => {
-      // We rely on component-level ScrollTrigger animations now
-      // This prevents double-animation and "stuck" scrolling
-      return () => {}
-    })
-
+    // Refresh after fonts/images settle
     ScrollTrigger.refresh()
-    const delayedRefresh = window.setTimeout(() => {
+    const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh()
       lenis.resize()
-    }, 1000)
+    }, 800)
+
+    // Pause when tab hidden — saves CPU
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        gsap.ticker.sleep()
+      } else {
+        gsap.ticker.wake()
+        lenis.resize()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      window.clearTimeout(delayedRefresh)
-      mm.revert()
+      clearTimeout(refreshTimer)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      gsap.ticker.remove(lenis.raf)
       lenis.destroy()
-      if (rafId) {
-        cancelAnimationFrame(rafId)
-      }
+      ScrollTrigger.killAll()
     }
   }, [])
 }

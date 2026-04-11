@@ -78,6 +78,45 @@ const Hero = () => {
       .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.6')
       .fromTo(buttonsRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.6')
       .fromTo(statsRef.current.children, { y: 20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.6 }, '-=0.4')
+
+    // Magnetic interaction for buttons
+    const magneticBtns = buttonsRef.current.querySelectorAll('button')
+    const handleMagnetic = (e) => {
+      const btn = e.currentTarget
+      const rect = btn.getBoundingClientRect()
+      const x = e.clientX - rect.left - rect.width / 2
+      const y = e.clientY - rect.top - rect.height / 2
+      
+      gsap.to(btn, {
+        x: x * 0.3,
+        y: y * 0.3,
+        duration: 0.4,
+        ease: 'power3.out'
+      })
+    }
+
+    const resetMagnetic = (e) => {
+      gsap.to(e.currentTarget, {
+        x: 0,
+        y: 0,
+        duration: 0.6,
+        ease: 'elastic.out(1, 0.3)'
+      })
+    }
+
+    magneticBtns.forEach(btn => {
+      btn.addEventListener('mousemove', handleMagnetic)
+      btn.addEventListener('mouseleave', resetMagnetic)
+      btn.addEventListener('mouseenter', () => uiAudio.playHover())
+      btn.addEventListener('click', () => uiAudio.playClick())
+    })
+
+    return () => {
+      magneticBtns.forEach(btn => {
+        btn.removeEventListener('mousemove', handleMagnetic)
+        btn.removeEventListener('mouseleave', resetMagnetic)
+      })
+    }
   }, [])
 
   return (

@@ -45,6 +45,8 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-shine: shine 1.5s ease-in-out infinite;
+  --animate-loading: loading 0.8s ease-in-out infinite;
 }
 
 @keyframes float {
@@ -55,6 +57,16 @@
 @keyframes glow {
   0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
   100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
 @layer base {
@@ -79,6 +91,12 @@
     transform: translateZ(0);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    cursor: none;
+  }
+
+  /* Restore cursor on touch devices */
+  @media (hover: none) and (pointer: coarse) {
+    body { cursor: auto; }
   }
 
   body::before {
@@ -122,32 +140,36 @@
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    contain: content;
   }
 
   .glass-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-  }
-
-  .glass-card-solid {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, background-color 0.3s ease;
+    will-change: transform;
+    contain: layout style paint;
   }
 
   .glass-nav {
     background: var(--glass-bg);
     border-bottom: 1px solid var(--glass-border);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    contain: layout paint;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
   }
 
   .glass-button {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    backdrop-filter: none !important;
-    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
   }
 
   [data-theme="light"] .glass-button {
