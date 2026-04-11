@@ -1,8 +1,12 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
+import LiquidGlass from './LiquidGlass'
 
 const Projects = () => {
   const [expandedProject, setExpandedProject] = useState(null)
+  const sectionRef = useRef(null)
+  const cardsRef = useRef([])
+  const detailsRef = useRef([])
 
   const projects = [
     {
@@ -49,133 +53,145 @@ const Projects = () => {
     },
   ]
 
+  useEffect(() => {
+    gsap.fromTo(cardsRef.current,
+      { opacity: 0, y: 50, scale: 0.95 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        }
+      }
+    )
+  }, [])
+
+  useEffect(() => {
+    projects.forEach((_, index) => {
+      const el = detailsRef.current[index]
+      if (expandedProject === index) {
+        gsap.to(el, {
+          height: 'auto',
+          opacity: 1,
+          duration: 0.5,
+          ease: 'power3.out',
+          overwrite: true
+        })
+      } else {
+        gsap.to(el, {
+          height: 0,
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power3.in',
+          overwrite: true
+        })
+      }
+    })
+  }, [expandedProject])
+
+  const toggleProject = (index) => {
+    setExpandedProject(expandedProject === index ? null : index)
+  }
+
   return (
-    <section id="projects" className="py-12">
+    <section id="projects" ref={sectionRef} className="py-24 bg-dark-bg/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16 md:mb-20">
           <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-wider">05</span>
+            <span className="text-accent font-mono text-xs md:text-sm uppercase tracking-widest font-bold">05 / Projects</span>
           </div>
-          <h2 className="section-title">Featured Projects</h2>
-          <p className="section-subtitle">Complex backend systems built for scale and performance</p>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 tracking-tighter">Backend Architecture</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-base md:text-lg leading-relaxed">Production-grade systems optimized for high throughput and reliability.</p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
-            <motion.div
+            <LiquidGlass
               key={index}
-              className="glass p-6 rounded-xl cursor-pointer group"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              onClick={() => setExpandedProject(expandedProject === index ? null : index)}
+              className="h-full"
             >
-              <div className="flex justify-between items-start mb-4">
-                <span className="px-3 py-1 bg-accent/10 text-accent font-mono text-xs rounded-full">
-                  {project.type}
-                </span>
-                <motion.div
-                  animate={{ rotate: expandedProject === index ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
+              <div
+                ref={el => cardsRef.current[index] = el}
+                onClick={() => toggleProject(index)}
+                className={`p-10 h-full flex flex-col items-start cursor-pointer transition-all duration-300
+                  ${expandedProject === index ? 'shadow-2xl bg-white/[0.04]' : 'hover:bg-white/[0.02]'}`}
+              >
+                <div className="flex justify-between items-center w-full mb-8">
+                  <span className="px-3 py-1 bg-accent text-dark-bg font-black font-mono text-[9px] uppercase rounded border border-accent/20 tracking-tighter">
+                    {project.type}
+                  </span>
+                  <div className={`transition-transform duration-500 ${expandedProject === index ? 'rotate-180' : ''}`}>
+                    <span className="text-accent text-[10px]">▼</span>
+                  </div>
+                </div>
+
+                <h3 className="text-2xl font-black text-text-primary mb-4 tracking-tight leading-none">
+                  {project.title}
+                </h3>
+
+                <p className="text-text-secondary mb-8 leading-relaxed text-sm opacity-80">
+                  {project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-8 mt-auto">
+                  {project.technologies.map((tech, techIndex) => (
+                    <span
+                      key={techIndex}
+                      className="px-3 py-1 bg-white/5 text-text-secondary font-mono text-[9px] uppercase font-bold rounded border border-white/10"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                <div
+                  ref={el => detailsRef.current[index] = el}
+                  className="overflow-hidden opacity-0 h-0 w-full"
                 >
-                  <span className="text-accent">▼</span>
-                </motion.div>
-              </div>
+                  <div className="pt-8 mt-4 border-t border-white/5 space-y-10">
+                    <div>
+                      <h4 className="text-accent font-black text-[10px] uppercase tracking-widest mb-6 underline underline-offset-8">System Components</h4>
+                      <div className="grid grid-cols-1 gap-4">
+                        {project.architecture.components.map((comp, i) => (
+                          <div key={i} className="flex items-center gap-4 text-xs font-bold text-text-secondary group">
+                            <span className="w-1.5 h-1.5 bg-accent rounded-full shadow-[0_0_10px_#00d4ff]"></span>
+                            <span className="group-hover:text-text-primary transition-colors">{comp}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-              <h3 className="text-xl font-bold text-text-primary mb-3 group-hover:text-accent transition-colors">
-                {project.title}
-              </h3>
-
-              <p className="text-text-secondary mb-4 leading-relaxed">
-                {project.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.technologies.slice(0, 4).map((tech, techIndex) => (
-                  <span
-                    key={techIndex}
-                    className="px-2 py-1 glass-button text-text-secondary font-mono text-xs rounded-full"
-                  >
-                    {tech}
-                  </span>
-                ))}
-                {project.technologies.length > 4 && (
-                  <span className="px-2 py-1 glass-button text-text-secondary font-mono text-xs rounded-full">
-                    +{project.technologies.length - 4}
-                  </span>
-                )}
-              </div>
-
-              <AnimatePresence>
-                {expandedProject === index && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="border-t border-border pt-4 mt-4"
-                  >
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-8">
                       <div>
-                        <h4 className="text-accent font-semibold mb-2">System Architecture</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-text-secondary font-mono">Components:</p>
-                            <ul className="text-text-secondary mt-1">
-                              {project.architecture.components.map((comp, i) => (
-                                <li key={i} className="flex items-center gap-2">
-                                  <span className="w-1 h-1 bg-accent rounded-full"></span>
-                                  {comp}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="text-text-secondary font-mono">Infrastructure:</p>
-                            <ul className="text-text-secondary mt-1 space-y-1">
-                              <li>• {project.architecture.database}</li>
-                              <li>• {project.architecture.caching}</li>
-                              <li>• {project.architecture.deployment}</li>
-                            </ul>
-                          </div>
+                        <h4 className="text-accent-secondary font-black text-[10px] uppercase tracking-widest mb-4">Architecture Info</h4>
+                        <div className="space-y-3 text-[11px] font-bold text-text-secondary font-mono opacity-60">
+                          <p className="flex justify-between"><span>DB:</span> <span className="text-text-primary">{project.architecture.database}</span></p>
+                          <p className="flex justify-between"><span>Cache:</span> <span className="text-text-primary">{project.architecture.caching}</span></p>
+                          <p className="flex justify-between"><span>Infra:</span> <span className="text-text-primary">{project.architecture.deployment}</span></p>
                         </div>
                       </div>
 
                       <div>
-                        <h4 className="text-accent font-semibold mb-2">Key Challenges</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {project.challenges.map((challenge, i) => (
-                            <span key={i} className="px-2 py-1 bg-accent/10 text-accent text-xs rounded">
-                              {challenge}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="text-accent font-semibold mb-2">Performance Metrics</h4>
-                        <div className="grid grid-cols-1 gap-1">
+                        <h4 className="text-white font-black text-[10px] uppercase tracking-widest mb-4">Success Metrics</h4>
+                        <div className="grid grid-cols-1 gap-3">
                           {project.metrics.map((metric, i) => (
-                            <div key={i} className="flex items-center gap-2 text-sm text-text-secondary">
-                              <span className="w-2 h-2 bg-accent-secondary rounded-full"></span>
+                            <div key={i} className="text-[11px] font-bold text-text-secondary flex items-center gap-3 bg-white/[0.02] p-3 rounded-lg border border-white/5">
+                              <span className="text-accent">⚡</span>
                               {metric}
                             </div>
                           ))}
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                  </div>
+                </div>
+              </div>
+            </LiquidGlass>
           ))}
         </div>
       </div>

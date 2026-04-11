@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
 
 const ParticleBackground = () => {
   const canvasRef = useRef(null)
@@ -11,7 +10,6 @@ const ParticleBackground = () => {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
@@ -20,95 +18,82 @@ const ParticleBackground = () => {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // Particle class
     class Particle {
       constructor() {
+        this.reset()
+      }
+
+      reset() {
         this.x = Math.random() * canvas.width
         this.y = Math.random() * canvas.height
-        this.vx = (Math.random() - 0.5) * 0.5
-        this.vy = (Math.random() - 0.5) * 0.5
-        this.size = Math.random() * 2 + 0.5
-        this.opacity = Math.random() * 0.5 + 0.1
-        this.color = `rgba(59, 130, 246, ${this.opacity})` // Blue accent color
+        this.vx = (Math.random() - 0.5) * 0.3
+        this.vy = (Math.random() - 0.5) * 0.3
+        this.size = Math.random() * 1.5 + 0.2
       }
 
       update() {
         this.x += this.vx
         this.y += this.vy
 
-        // Wrap around edges
-        if (this.x < 0) this.x = canvas.width
-        if (this.x > canvas.width) this.x = 0
-        if (this.y < 0) this.y = canvas.height
-        if (this.y > canvas.height) this.y = 0
-
-        // Subtle pulsing
-        this.opacity += Math.sin(Date.now() * 0.001 + this.x) * 0.01
-        this.opacity = Math.max(0.1, Math.min(0.6, this.opacity))
-        this.color = `rgba(59, 130, 246, ${this.opacity})`
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1
       }
 
-      draw() {
+      draw(color) {
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fillStyle = this.color
+        ctx.fillStyle = color
         ctx.fill()
       }
     }
 
-    // Create particles
-    const particles = []
-    const particleCount = Math.min(50, Math.floor((canvas.width * canvas.height) / 15000))
+    const particles = Array.from({ length: 40 }, () => new Particle())
 
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle())
-    }
-
-    // Animation loop
+    let animationId
     const animate = () => {
+      const isLight = document.documentElement.dataset.theme === 'light'
+      const particleColor = isLight ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)'
+      const lineColor = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      particles.forEach(particle => {
-        particle.update()
-        particle.draw()
-      })
+      particles.forEach((p, i) => {
+        p.update()
+        p.draw(particleColor)
 
-      // Draw connections between nearby particles
-      particles.forEach((particle, i) => {
-        particles.slice(i + 1).forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x
-          const dy = particle.y - otherParticle.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j]
+          const dx = p.x - p2.x
+          const dy = p.y - p2.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
 
-          if (distance < 100) {
+          if (dist < 150) {
             ctx.beginPath()
-            ctx.moveTo(particle.x, particle.y)
-            ctx.lineTo(otherParticle.x, otherParticle.y)
-            ctx.strokeStyle = `rgba(59, 130, 246, ${(100 - distance) / 100 * 0.1})`
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.strokeStyle = lineColor
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
-        })
+        }
       })
 
-      requestAnimationFrame(animate)
+      animationId = requestAnimationFrame(animate)
     }
 
     animate()
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
+      cancelAnimationFrame(animationId)
     }
   }, [])
 
   return (
-    <motion.canvas
+    <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 pointer-events-none z-0 opacity-40"
       style={{ background: 'transparent' }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 0.3 }}
-      transition={{ duration: 2 }}
     />
   )
 }

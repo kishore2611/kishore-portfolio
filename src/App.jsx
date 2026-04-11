@@ -1,5 +1,6 @@
-import { lazy, Suspense, useState, useEffect } from 'react'
-import { motion, useScroll } from 'framer-motion'
+import { lazy, Suspense, useState, useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useCinematicScroll from './hooks/useCinematicScroll'
 import Navigation from './components/Navigation'
 import Hero from './components/Hero'
@@ -11,6 +12,9 @@ import Projects from './components/Projects'
 import Contact from './components/Contact'
 import ParticleBackground from './components/ParticleBackground'
 import AnimatedTechBackground from './components/AnimatedTechBackground'
+import ScrollToTop from './components/ScrollToTop'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const SystemDesign = lazy(() => import('./components/SystemDesign'))
 const CodeSnippets = lazy(() => import('./components/CodeSnippets'))
@@ -20,7 +24,7 @@ const TechStack = lazy(() => import('./components/TechStack'))
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [theme, setTheme] = useState('dark')
-  const { scrollYProgress } = useScroll()
+  const progressBarRef = useRef(null)
 
   useCinematicScroll()
 
@@ -39,8 +43,23 @@ function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
+  useEffect(() => {
+    if (progressBarRef.current) {
+      gsap.to(progressBarRef.current, {
+        scaleX: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.3,
+        },
+      })
+    }
+  }, [])
+
   return (
-    <div className="relative min-h-screen bg-dark-bg/90 overflow-x-hidden">
+    <div className="relative min-h-screen bg-dark-bg overflow-x-hidden">
       {/* Particle Background */}
       <ParticleBackground />
 
@@ -71,22 +90,23 @@ function App() {
         <Projects />
 
         {/* System Design Section */}
-        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary">Loading system visuals…</div></div>}>
+        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary font-mono">Loading system visuals…</div></div>}>
           <SystemDesign />
         </Suspense>
 
         {/* Code Snippets Section */}
-        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary">Loading code samples…</div></div>}>
+        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary font-mono">Loading code samples…</div></div>}>
           <CodeSnippets />
         </Suspense>
 
         {/* Backend Playground Section */}
-        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary">Loading backend playground…</div></div>}>
+        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary font-mono">Loading backend playground…</div></div>}>
           <BackendPlayground />
         </Suspense>
 
         {/* Tech Stack Section */}
-        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary">Loading tech stack…</div></div>}>
+        <Suspense fallback={<div className="py-20"><div className="max-w-7xl mx-auto px-4 text-center text-text-secondary font-mono">Loading tech stack…</div></div>}>
+          <div id="stack-placeholder" />
           <TechStack />
         </Suspense>
 
@@ -95,10 +115,12 @@ function App() {
       </main>
 
       {/* Scroll Progress Indicator */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-accent z-50 origin-left"
-        style={{ scaleX: scrollYProgress }}
+      <div
+        ref={progressBarRef}
+        className="fixed top-0 left-0 right-0 h-1 bg-accent z-50 origin-left scale-x-0"
       />
+
+      <ScrollToTop />
     </div>
   )
 }

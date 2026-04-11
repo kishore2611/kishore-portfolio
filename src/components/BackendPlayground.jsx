@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 
 const BackendPlayground = () => {
   const [activeTab, setActiveTab] = useState('api')
@@ -14,6 +14,9 @@ const BackendPlayground = () => {
     { id: 2, timestamp: new Date().toLocaleTimeString(), type: 'success', message: 'API simulator ready' },
   ])
   const logsEndRef = useRef(null)
+  const sectionRef = useRef(null)
+  const containerRef = useRef(null)
+  const contentRef = useRef(null)
 
   const scrollToBottom = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -22,6 +25,32 @@ const BackendPlayground = () => {
   useEffect(() => {
     scrollToBottom()
   }, [logs])
+
+  useEffect(() => {
+    // Entrance
+    gsap.fromTo(containerRef.current,
+      { opacity: 0, scale: 0.98, y: 30 },
+      { 
+        opacity: 1, 
+        scale: 1, 
+        y: 0, 
+        duration: 0.8, 
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        }
+      }
+    )
+  }, [])
+
+  useEffect(() => {
+    // Tab transition
+    gsap.fromTo(contentRef.current,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+    )
+  }, [activeTab])
 
   const addLog = (type, message) => {
     const newLog = {
@@ -37,11 +66,9 @@ const BackendPlayground = () => {
     setIsLoading(true)
     addLog('info', `Making ${method} request to ${apiEndpoint}`)
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000))
+    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200))
 
     try {
-      // Mock responses based on endpoint and method
       let mockResponse = {}
       let statusCode = 200
 
@@ -73,11 +100,7 @@ const BackendPlayground = () => {
       } else if (method === 'POST') {
         if (apiEndpoint.includes('/users')) {
           const newUser = JSON.parse(requestBody || '{}')
-          mockResponse = {
-            ...newUser,
-            id: Date.now(),
-            createdAt: new Date().toISOString()
-          }
+          mockResponse = { ...newUser, id: Date.now(), createdAt: new Date().toISOString() }
           statusCode = 201
         } else {
           mockResponse = { message: 'Method not allowed', status: 405 }
@@ -93,7 +116,6 @@ const BackendPlayground = () => {
       const responseText = JSON.stringify(mockResponse, null, 2)
       setResponse(`HTTP ${statusCode} ${getStatusText(statusCode)}\n\n${responseText}`)
       addLog('success', `Request completed with status ${statusCode}`)
-
     } catch (error) {
       setResponse('Error: Invalid JSON in request body')
       addLog('error', 'Request failed: Invalid JSON')
@@ -104,14 +126,8 @@ const BackendPlayground = () => {
 
   const getStatusText = (code) => {
     const statusTexts = {
-      200: 'OK',
-      201: 'Created',
-      204: 'No Content',
-      400: 'Bad Request',
-      401: 'Unauthorized',
-      404: 'Not Found',
-      405: 'Method Not Allowed',
-      500: 'Internal Server Error'
+      200: 'OK', 201: 'Created', 204: 'No Content', 400: 'Bad Request',
+      401: 'Unauthorized', 404: 'Not Found', 405: 'Method Not Allowed', 500: 'Internal Server Error'
     }
     return statusTexts[code] || 'Unknown'
   }
@@ -122,185 +138,157 @@ const BackendPlayground = () => {
   }
 
   return (
-    <section id="playground" className="py-12">
+    <section id="playground" ref={sectionRef} className="py-24 bg-dark-bg/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-wider">08</span>
+            <span className="text-accent font-mono text-sm uppercase tracking-widest font-bold">08 / Playground</span>
           </div>
-          <h2 className="section-title">Backend Playground</h2>
-          <p className="section-subtitle">Interactive API testing and backend simulation environment</p>
-        </motion.div>
+          <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-4 tracking-tight">API Environment</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-lg leading-relaxed">Interactive node simulation for testing infrastructure protocols.</p>
+        </div>
 
-        <motion.div
-          className="glass-card rounded-xl overflow-hidden"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
-          {/* Tabs */}
-          <div className="border-b border-border">
-            <div className="flex">
-              {['api', 'logs'].map((tab) => (
-                <button
-                  key={tab}
-                  className={`px-6 py-4 font-medium transition-colors capitalize ${
-                    activeTab === tab
-                      ? 'text-accent border-b-2 border-accent bg-accent/5'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab === 'api' ? 'API Tester' : 'Console Logs'}
-                </button>
-              ))}
-            </div>
+        <div ref={containerRef} className="glass-card rounded-3xl overflow-hidden border border-white/5 shadow-2xl bg-surface/50">
+          <div className="flex border-b border-white/5 bg-white/[0.02]">
+            {['api', 'logs'].map((tab) => (
+              <button
+                key={tab}
+                className={`flex-1 px-8 py-5 font-bold text-xs uppercase tracking-widest transition-all duration-300 ${
+                  activeTab === tab
+                    ? 'text-accent border-b-2 border-accent bg-accent/5'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.02]'
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab === 'api' ? 'Network Simulator' : 'Terminal Output'}
+              </button>
+            ))}
           </div>
 
-          <div className="p-6">
-            <AnimatePresence mode="wait">
-              {activeTab === 'api' && (
-                <motion.div
-                  key="api"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  {/* Request Configuration */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div ref={contentRef} className="p-8 lg:p-12">
+            {activeTab === 'api' ? (
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-12">
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-[100px_1fr] gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-2">Method</label>
+                      <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Method</label>
                       <select
                         value={method}
                         onChange={(e) => setMethod(e.target.value)}
-                        className="w-full px-3 py-2 glass-input border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                        className="w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl font-bold text-xs focus:ring-1 focus:ring-accent outline-none appearance-none cursor-pointer"
                       >
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                        <option value="PUT">PUT</option>
-                        <option value="PATCH">PATCH</option>
-                        <option value="DELETE">DELETE</option>
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>PATCH</option>
+                        <option>DELETE</option>
                       </select>
                     </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-text-primary mb-2">Endpoint</label>
+                    <div>
+                      <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Endpoint</label>
                       <input
                         type="text"
                         value={apiEndpoint}
                         onChange={(e) => setApiEndpoint(e.target.value)}
-                        placeholder="/api/endpoint"
-                        className="w-full px-3 py-2 glass-input border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
+                        className="w-full h-12 px-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-sm"
+                        placeholder="/api/v1/auth"
                       />
                     </div>
                   </div>
 
-                  {/* Headers */}
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-2">Headers</label>
+                    <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Request Headers</label>
                     <textarea
                       value={headers}
                       onChange={(e) => setHeaders(e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 glass-input border border-border rounded-lg font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent"
-                      placeholder="Content-Type: application/json"
+                      className="w-full p-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-xs resize-none"
                     />
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-2">Request Body (JSON)</label>
+                    <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Payload (JSON)</label>
                     <textarea
                       value={requestBody}
                       onChange={(e) => setRequestBody(e.target.value)}
-                      rows={6}
-                      className="w-full px-3 py-2 glass-input border border-border rounded-lg font-mono text-sm focus:ring-2 focus:ring-accent focus:border-transparent"
-                      placeholder='{"name": "John Doe", "email": "john@example.com"}'
+                      rows={5}
+                      className="w-full p-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-xs resize-none"
+                      placeholder='{ "action": "deploy" }'
                     />
                   </div>
 
-                  {/* Send Button */}
-                  <div className="flex justify-between items-center">
-                    <button
-                      onClick={simulateApiCall}
-                      disabled={isLoading}
-                      className="px-6 py-3 bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                    >
-                      {isLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Sending...
-                        </>
-                      ) : (
-                        'Send Request'
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    onClick={simulateApiCall}
+                    disabled={isLoading}
+                    className="w-full h-14 bg-accent text-dark-bg font-bold rounded-xl hover:bg-accent-secondary transition-all duration-300 disabled:opacity-50 group overflow-hidden relative"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-3">
+                      {isLoading ? 'Executing Protocol...' : 'Invoke Request'}
+                      {!isLoading && <span className="group-hover:translate-x-2 transition-transform duration-300">→</span>}
+                    </span>
+                  </button>
+                </div>
 
-                  {/* Response */}
-                  {response && (
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary mb-2">Response</label>
-                      <pre className="w-full px-4 py-3 glass-card border border-border rounded-lg font-mono text-sm overflow-x-auto whitespace-pre-wrap">
-                        {response}
-                      </pre>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {activeTab === 'logs' && (
-                <motion.div
-                  key="logs"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4"
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-text-primary">Console Logs</h3>
-                    <button
-                      onClick={clearLogs}
-                      className="px-4 py-2 text-sm glass-button rounded-lg hover:bg-accent hover:text-white transition-colors"
-                    >
-                      Clear Logs
-                    </button>
-                  </div>
-
-                  <div className="glass-card border border-border rounded-lg h-96 overflow-y-auto p-4 space-y-2">
-                    {logs.map((log) => (
-                      <div key={log.id} className="flex items-start gap-3 text-sm">
-                        <span className="text-text-secondary font-mono text-xs whitespace-nowrap">
-                          {log.timestamp}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          log.type === 'error' ? 'bg-red-500/20 text-red-400' :
-                          log.type === 'success' ? 'bg-green-500/20 text-green-400' :
-                          log.type === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-blue-500/20 text-blue-400'
-                        }`}>
-                          {log.type.toUpperCase()}
-                        </span>
-                        <span className="text-text-primary font-mono">{log.message}</span>
+                <div className="flex flex-col">
+                  <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Response Buffer</label>
+                  <div className="flex-1 min-h-[400px] p-6 bg-surface-light border border-white/5 rounded-2xl font-mono text-xs overflow-auto shadow-inner relative group">
+                    {!response && !isLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center text-white/20 uppercase tracking-widest font-bold">
+                        Awaiting Invocations
                       </div>
-                    ))}
-                    <div ref={logsEndRef} />
+                    )}
+                    {isLoading && (
+                      <div className="flex items-center gap-2 text-accent font-bold animate-pulse">
+                        <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                        SYNCHRONIZING...
+                      </div>
+                    )}
+                    <pre className="whitespace-pre-wrap text-text-primary leading-relaxed">
+                      {response}
+                    </pre>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center border-b border-white/5 pb-6">
+                  <h3 className="text-xl font-bold text-text-primary">System Runtime Logs</h3>
+                  <button
+                    onClick={clearLogs}
+                    className="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest border border-white/10 rounded-lg hover:border-red-500/50 hover:bg-red-500/5 transition-all duration-300"
+                  >
+                    FLUSH BUFFER
+                  </button>
+                </div>
+
+                <div className="h-[500px] overflow-y-auto pr-4 font-mono text-[11px] space-y-3 custom-scrollbar">
+                  {logs.map((log) => (
+                    <div key={log.id} className="flex items-start gap-4 p-3 bg-white/[0.02] border border-white/5 rounded-xl group hover:border-accent/20 transition-colors">
+                      <span className="text-text-secondary opacity-50 shrink-0 font-bold">
+                        [{log.timestamp}]
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase shrink-0 ${
+                        log.type === 'error' ? 'bg-red-500 text-white' :
+                        log.type === 'success' ? 'bg-green-500 text-white' :
+                        log.type === 'warning' ? 'bg-yellow-500 text-dark-bg' :
+                        'bg-blue-500 text-white'
+                      }`}>
+                        {log.type}
+                      </span>
+                      <span className="text-text-primary opacity-80 group-hover:opacity-100 transition-opacity whitespace-pre-wrap">
+                        {log.message}
+                      </span>
+                    </div>
+                  ))}
+                  <div ref={logsEndRef} />
+                </div>
+              </div>
+            )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
 }
 
-export default BackendPlayground
+export default BackendPlayground

@@ -1,48 +1,6 @@
-import { motion, useInView } from 'framer-motion'
-import { useEffect, useState, useRef } from 'react'
-
-const AnimatedCounter = ({ target, suffix = '', duration = 900 }) => {
-  const [count, setCount] = useState(0)
-  const ref = useRef(null)
-  const frameRef = useRef(null)
-  const inView = useInView(ref, {
-    triggerOnce: true,
-    threshold: 0.3,
-  })
-
-  useEffect(() => {
-    if (!inView) {
-      return
-    }
-
-    const startTime = performance.now()
-    const step = (timestamp) => {
-      const progress = Math.min((timestamp - startTime) / duration, 1)
-      const value = Math.round(progress * target)
-      setCount(value)
-
-      if (progress < 1) {
-        frameRef.current = requestAnimationFrame(step)
-      } else {
-        cancelAnimationFrame(frameRef.current)
-      }
-    }
-
-    frameRef.current = requestAnimationFrame(step)
-
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current)
-      }
-    }
-  }, [inView, target, duration])
-
-  return (
-    <span ref={ref}>
-      {count}{suffix}
-    </span>
-  )
-}
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import LiquidGlass from './LiquidGlass'
 
 const Stats = () => {
   const stats = [
@@ -52,38 +10,74 @@ const Stats = () => {
     { number: 5, label: 'Companies Worked', suffix: '+' },
   ]
 
+  const sectionRef = useRef(null)
+  const cardsRef = useRef([])
+  const numbersRef = useRef([])
+
+  useEffect(() => {
+    // Entrance animation
+    gsap.fromTo(cardsRef.current,
+      { opacity: 0, y: 30, scale: 0.95 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 85%',
+        }
+      }
+    )
+
+    // Counter animation
+    stats.forEach((stat, index) => {
+      const obj = { value: 0 }
+      gsap.to(obj, {
+        value: stat.number,
+        duration: 2,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        },
+        onUpdate: () => {
+          if (numbersRef.current[index]) {
+            numbersRef.current[index].innerText = Math.floor(obj.value)
+          }
+        }
+      })
+    })
+  }, [])
+
   return (
-    <section className="py-12">
+    <section ref={sectionRef} className="py-20 md:py-32 bg-dark-bg/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {stats.map((stat, index) => (
-            <motion.div
+            <div
               key={index}
-              className="text-center glass-card p-6 rounded-xl"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.35 }}
-              transition={{ duration: 0.55, delay: index * 0.1, type: 'spring', stiffness: 220 }}
-              whileHover={{ scale: 1.05, y: -5 }}
+              ref={el => cardsRef.current[index] = el}
+              className="h-full"
             >
-              <div className="text-4xl md:text-5xl font-bold text-accent mb-2">
-                <AnimatedCounter target={stat.number} suffix={stat.suffix} />
-              </div>
-              <div className="text-text-secondary font-mono text-sm uppercase tracking-wider">
-                {stat.label}
-              </div>
-            </motion.div>
+              <LiquidGlass className="text-center group" cornerRadius={32}>
+                <div className="text-5xl md:text-6xl font-bold text-accent mb-4 tabular-nums">
+                  <span ref={el => numbersRef.current[index] = el}>0</span>
+                  {stat.suffix}
+                </div>
+                <div className="text-text-secondary font-mono text-xs uppercase tracking-[0.2em] font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                  {stat.label}
+                </div>
+                <div className="w-10 h-[1px] bg-accent/30 mx-auto mt-6 group-hover:w-20 transition-all duration-500" />
+              </LiquidGlass>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
 }
 
-export default Stats
+export default Stats

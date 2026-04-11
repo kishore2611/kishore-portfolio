@@ -1,9 +1,8 @@
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import LiquidGlass from './LiquidGlass'
 
 const Skills = () => {
-  const [hoveredSkill, setHoveredSkill] = useState(null)
-
   const skillCategories = [
     {
       title: 'Backend Runtime',
@@ -55,74 +54,100 @@ const Skills = () => {
     },
   ]
 
+  const sectionRef = useRef(null)
+  const cardsRef = useRef([])
+
+  useEffect(() => {
+    gsap.fromTo(cardsRef.current,
+      { opacity: 0, scale: 0.9, y: 30 },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.08,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        }
+      }
+    )
+  }, [])
+
+  const handleMouseEnter = (index) => {
+    gsap.to(cardsRef.current[index], {
+      y: -8,
+      duration: 0.3,
+      ease: 'power2.out'
+    })
+    gsap.to(cardsRef.current[index].querySelector('.skill-icon'), {
+      rotationZ: 360,
+      duration: 0.6,
+      ease: 'power1.inOut'
+    })
+  }
+
+  const handleMouseLeave = (index) => {
+    gsap.to(cardsRef.current[index], {
+      y: 0,
+      duration: 0.3,
+      ease: 'power2.in'
+    })
+    gsap.to(cardsRef.current[index].querySelector('.skill-icon'), {
+      rotationZ: 0,
+      duration: 0.5,
+      ease: 'power1.inOut'
+    })
+  }
+
   return (
-    <section id="skills" className="py-12 glass">
+    <section id="skills" ref={sectionRef} className="py-20 md:py-32 bg-dark-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16 md:mb-20">
           <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-wider">04</span>
+            <span className="text-accent font-mono text-xs md:text-sm uppercase tracking-widest font-bold">04 / Skills</span>
           </div>
-          <h2 className="section-title">Core Skills</h2>
-          <p className="section-subtitle">Technologies and tools I use to build scalable backend systems</p>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 leading-tight">Technical Prowess</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-base md:text-lg">Modern tech stack for building high-performance backend systems.</p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {skillCategories.map((category, index) => (
-            <motion.div
+            <LiquidGlass
               key={index}
-              className="glass p-6 rounded-xl cursor-pointer group"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{
-                scale: 1.05,
-                y: -10,
-                boxShadow: '0 20px 40px rgba(0, 212, 255, 0.1)'
-              }}
-              onHoverStart={() => setHoveredSkill(index)}
-              onHoverEnd={() => setHoveredSkill(null)}
+              className="h-full"
             >
-              <motion.div
-                className="text-3xl mb-4"
-                animate={hoveredSkill === index ? { rotate: 360 } : { rotate: 0 }}
-                transition={{ duration: 0.6 }}
+              <div
+                ref={el => cardsRef.current[index] = el}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={() => handleMouseLeave(index)}
+                className="p-8 h-full transition-colors cursor-default"
               >
-                {category.icon}
-              </motion.div>
+                <div className="skill-icon text-5xl mb-6 inline-block">
+                  {category.icon}
+                </div>
 
-              <h3 className="text-lg font-semibold text-text-primary mb-3 group-hover:text-accent transition-colors">
-                {category.title}
-              </h3>
+                <h3 className="text-xl font-black text-text-primary mb-3">
+                  {category.title}
+                </h3>
 
-              <motion.p
-                className="text-text-secondary text-sm mb-4 leading-relaxed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: hoveredSkill === index ? 1 : 0.7 }}
-                transition={{ duration: 0.3 }}
-              >
-                {category.description}
-              </motion.p>
+                <p className="text-text-secondary text-sm mb-8 leading-relaxed opacity-70">
+                  {category.description}
+                </p>
 
-              <div className="flex flex-wrap gap-2">
-                {category.skills.map((skill, skillIndex) => (
-                  <motion.span
-                    key={skillIndex}
-                    className="px-3 py-1 bg-accent/10 text-accent font-mono text-xs rounded-full border border-accent/20"
-                    whileHover={{ scale: 1.1, backgroundColor: 'rgba(0, 212, 255, 0.2)' }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    {skill}
-                  </motion.span>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {category.skills.map((skill, skillIndex) => (
+                    <span
+                      key={skillIndex}
+                      className="px-3 py-1 bg-accent/5 text-accent font-mono text-[9px] uppercase font-black rounded-lg border border-accent/10 whitespace-nowrap"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </motion.div>
+            </LiquidGlass>
           ))}
         </div>
       </div>

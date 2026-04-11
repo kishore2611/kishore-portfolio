@@ -1,155 +1,182 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
 
 const Navigation = ({ theme, toggleTheme }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const menuRef = useRef(null)
+  const menuItemsRef = useRef([])
+  const toggleBtnRef = useRef(null)
+  const navRef = useRef(null)
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      const currentScrollY = window.scrollY
+      
+      // Scrolled state for glass effect
+      setIsScrolled(currentScrollY > 20)
+
+      // Visibility state (hide on scroll down, show on scroll up)
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false) // Scrolling down
+      } else {
+        setIsVisible(true) // Scrolling up or at top
+      }
+
+      setLastScrollY(currentScrollY)
     }
-    window.addEventListener('scroll', handleScroll)
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [lastScrollY])
+
+  useEffect(() => {
+    if (navRef.current) {
+      gsap.to(navRef.current, {
+        y: isVisible ? 0 : -100,
+        duration: 0.4,
+        ease: 'power3.out'
+      })
+    }
+  }, [isVisible])
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      gsap.fromTo(menuRef.current,
+        { opacity: 0, scale: 1.05 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out' }
+      )
+      gsap.fromTo(menuItemsRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power3.out', delay: 0.1 }
+      )
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (toggleBtnRef.current) {
+      gsap.fromTo(toggleBtnRef.current, 
+        { rotate: theme === 'dark' ? -90 : 90, opacity: 0, scale: 0.5 },
+        { rotate: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.7)' }
+      )
+    }
+  }, [theme])
 
   const navItems = [
-    { name: 'Home', href: '#home' },
     { name: 'Experience', href: '#experience' },
-    { name: 'Skills', href: '#skills' },
     { name: 'Projects', href: '#projects' },
-    { name: 'System Design', href: '#system-design' },
-    { name: 'Code', href: '#code' },
-    { name: 'Playground', href: '#playground' },
     { name: 'Stack', href: '#stack' },
     { name: 'Contact', href: '#contact' },
   ]
 
   return (
     <>
-      <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'glass-nav shadow-lg' : 'bg-transparent'
+      <nav
+        ref={navRef}
+        className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-500 ${
+          isScrolled ? 'glass-nav py-3' : 'bg-transparent py-6'
         }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <motion.div
-              className="text-2xl font-bold text-accent font-mono"
-              whileHover={{ scale: 1.05 }}
+          <div className="flex justify-between items-center h-10">
+            <a
+              href="#home"
+              className="text-2xl font-black text-accent font-mono cursor-pointer flex items-center gap-1 group"
             >
-              KK<span className="text-accent-secondary">.</span>dev
-            </motion.div>
+              <span className={`px-1.5 rounded transition-colors ${
+                theme === 'dark' ? 'bg-accent text-dark-bg group-hover:bg-accent-secondary' : 'bg-accent text-white group-hover:bg-accent-secondary'
+              }`}>K</span>
+              <span className="group-hover:text-accent-secondary transition-colors">K.</span>
+            </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              <div className="hidden md:flex space-x-8">
+            <div className="hidden md:flex items-center gap-10">
+              <div className="flex items-center gap-8">
                 {navItems.map((item) => (
-                  <motion.a
+                  <a
                     key={item.name}
                     href={item.href}
-                    className="text-text-secondary hover:text-accent font-mono text-sm uppercase tracking-wider transition-colors duration-300"
-                    whileHover={{ y: -2 }}
-                    whileTap={{ y: 0 }}
+                    className="text-text-secondary hover:text-accent font-mono text-xs font-bold uppercase tracking-widest transition-all duration-300"
                   >
                     {item.name}
-                  </motion.a>
+                  </a>
                 ))}
               </div>
 
+              <div className={`h-4 w-px ${theme === 'dark' ? 'bg-white/10' : 'bg-black/10'}`} />
+
               <button
+                ref={toggleBtnRef}
                 onClick={toggleTheme}
-                className="glass-button px-3 py-2 rounded-full text-sm text-text-primary flex items-center gap-2"
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors group relative overflow-hidden ${
+                  theme === 'dark' ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-black/5 border border-black/10 hover:bg-black/10'
+                }`}
+                title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
               >
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <div className="relative z-10 text-xl group-hover:scale-110 transition-transform">
+                  {theme === 'dark' ? '☀️' : '🌙'}
+                </div>
+                <div className="absolute inset-0 bg-accent opacity-0 group-hover:opacity-10 transition-opacity" />
               </button>
             </div>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              className="md:hidden p-2"
-              onClick={() => setIsOpen(!isOpen)}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="w-6 h-6 flex flex-col justify-center items-center">
-                <motion.span
-                  className="w-6 h-0.5 bg-accent block mb-1"
-                  animate={isOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.span
-                  className="w-6 h-0.5 bg-accent block mb-1"
-                  animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.span
-                  className="w-6 h-0.5 bg-accent block"
-                  animate={isOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-            </motion.button>
+            {/* Mobile Actions */}
+            <div className="flex items-center gap-4 md:hidden">
+              <button
+                onClick={toggleTheme}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                  theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-black/5 border border-black/10'
+                }`}
+              >
+                <span className="text-sm">{theme === 'dark' ? '☀️' : '🌙'}</span>
+              </button>
+
+              <button
+                className="relative z-[110] w-9 h-9 flex flex-col justify-center items-center gap-1.5 focus:outline-none"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <span className={`w-6 h-0.5 bg-accent block transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                <span className={`w-6 h-0.5 bg-accent block transition-all duration-300 ${isOpen ? 'opacity-0' : 'opacity-1'}`} />
+                <span className={`w-6 h-0.5 bg-accent block transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+              </button>
+            </div>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="fixed inset-0 z-40 md:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-dark-bg/95"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-            />
-            <motion.div
-              className="relative flex flex-col items-center justify-center h-full space-y-8"
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              transition={{ delay: 0.1 }}
+      {/* Mobile Menu Overlay */}
+      <div
+        ref={menuRef}
+        className={`fixed inset-0 z-[90] md:hidden bg-dark-bg/95 backdrop-blur-xl flex items-center justify-center transition-opacity duration-300 ${
+          isOpen ? 'pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="flex flex-col items-center gap-8 p-8">
+          {navItems.map((item, index) => (
+            <a
+              key={item.name}
+              href={item.href}
+              ref={el => menuItemsRef.current[index] = el}
+              className="text-3xl font-black text-text-primary hover:text-accent font-mono uppercase tracking-tighter"
+              onClick={() => setIsOpen(false)}
             >
-              {navItems.map((item, index) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  className="text-2xl text-text-primary hover:text-accent font-mono uppercase tracking-wider"
-                  onClick={() => setIsOpen(false)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {item.name}
-                </motion.a>
-              ))}
-              <motion.button
-                onClick={() => {
-                  toggleTheme()
-                  setIsOpen(false)
-                }}
-                className="glass-button px-4 py-3 rounded-full text-sm text-text-primary"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navItems.length * 0.1 }}
-              >
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {item.name}
+            </a>
+          ))}
+          <div className="w-12 h-0.5 bg-white/10 mt-4" />
+          <button
+            className="btn-outline w-full mt-4"
+            onClick={() => setIsOpen(false)}
+          >
+            Close Menu
+          </button>
+        </div>
+      </div>
     </>
   )
 }

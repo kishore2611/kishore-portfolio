@@ -1,10 +1,9 @@
-import { motion } from 'framer-motion'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text } from '@react-three/drei'
-import { useRef } from 'react'
-import * as THREE from 'three'
+import { OrbitControls, Sphere, MeshDistortMaterial, Float } from '@react-three/drei'
+import { useRef, useEffect } from 'react'
+import { gsap } from 'gsap'
 
-const NetworkScene = ({ mousePosition }) => {
+const NetworkScene = () => {
   const groupRef = useRef()
 
   return (
@@ -15,10 +14,10 @@ const NetworkScene = ({ mousePosition }) => {
           <MeshDistortMaterial
             color="#00d4ff"
             attach="material"
-            distort={0.3}
+            distort={0.2}
             speed={2}
             roughness={0}
-            metalness={0.8}
+            metalness={0.9}
           />
         </Sphere>
       </Float>
@@ -34,16 +33,15 @@ const NetworkScene = ({ mousePosition }) => {
         return (
           <group key={i}>
             <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-              <Sphere args={[0.3, 32, 32]} position={[x, y, z]}>
+              <Sphere args={[0.25, 32, 32]} position={[x, y, z]}>
                 <meshStandardMaterial
                   color={i % 2 === 0 ? "#00ff88" : "#00d4ff"}
                   emissive={i % 2 === 0 ? "#00ff88" : "#00d4ff"}
-                  emissiveIntensity={0.2}
+                  emissiveIntensity={0.5}
                 />
               </Sphere>
             </Float>
 
-            {/* Connection Lines */}
             <line>
               <bufferGeometry>
                 <bufferAttribute
@@ -53,137 +51,109 @@ const NetworkScene = ({ mousePosition }) => {
                   itemSize={3}
                 />
               </bufferGeometry>
-              <lineBasicMaterial color="#00d4ff" opacity={0.3} transparent />
+              <lineBasicMaterial color="#00d4ff" opacity={0.4} transparent linewidth={1} />
             </line>
           </group>
         )
       })}
-
-      {/* Data Flow Particles */}
-      {Array.from({ length: 20 }, (_, i) => (
-        <Float key={i} speed={0.5} rotationIntensity={0} floatIntensity={0.5}>
-          <Sphere args={[0.05, 8, 8]} position={[
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10
-          ]}>
-            <meshBasicMaterial color="#00ff88" />
-          </Sphere>
-        </Float>
-      ))}
     </group>
   )
 }
 
-const Hero = ({ mousePosition }) => {
+const Hero = () => {
+  const heroRef = useRef(null)
+  const contentRef = useRef(null)
+  const badgeRef = useRef(null)
+  const titleRef = useRef(null)
+  const textRef = useRef(null)
+  const buttonsRef = useRef(null)
+  const statsRef = useRef(null)
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    
+    tl.fromTo(contentRef.current, { opacity: 0 }, { opacity: 1, duration: 1 })
+      .fromTo(badgeRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.5')
+      .fromTo(titleRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.4')
+      .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.6')
+      .fromTo(buttonsRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.6')
+      .fromTo(statsRef.current.children, { y: 20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.6 }, '-=0.4')
+  }, [])
+
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden glass">
-      <div className="absolute inset-0">
+    <section id="home" ref={heroRef} className="min-h-screen flex items-center justify-center relative overflow-hidden bg-dark-bg pt-20">
+      <div className="absolute inset-0 opacity-60">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 60 }}
           style={{ background: 'transparent' }}
+          gl={{ antialias: true, alpha: true }}
         >
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} color="#00ff88" />
-          <NetworkScene mousePosition={mousePosition} />
+          <ambientLight intensity={0.6} />
+          <pointLight position={[10, 10, 10]} intensity={1.5} />
+          <pointLight position={[-10, -10, -10]} intensity={0.8} color="#00ff88" />
+          <NetworkScene />
           <OrbitControls
             enableZoom={false}
             enablePan={false}
             autoRotate
-            autoRotateSpeed={0.5}
+            autoRotateSpeed={0.8}
             maxPolarAngle={Math.PI / 2}
             minPolarAngle={Math.PI / 2}
           />
         </Canvas>
       </div>
 
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <motion.div
-            className="inline-block px-4 py-2 glass-button rounded-full mb-6"
-            whileHover={{ scale: 1.05 }}
-          >
-            <span className="text-accent font-mono text-sm uppercase tracking-wider flex items-center gap-2">
-              <span className="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
-              Available for new opportunities
-            </span>
-          </motion.div>
+      <div ref={contentRef} className="relative z-10 text-center max-w-4xl mx-auto px-4 mt-12 md:mt-20">
+        <div ref={badgeRef} className="inline-block px-4 py-2 glass-button rounded-full mb-8 border-accent/20">
+          <span className="text-accent font-mono text-sm uppercase tracking-widest flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent rounded-full animate-pulse shadow-[0_0_10px_#00d4ff]"></span>
+            Available for new opportunities
+          </span>
+        </div>
 
-          <motion.h1
-            className="text-5xl md:text-7xl font-bold mb-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <span className="text-text-primary">Kishore Kumar</span>
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-secondary">
-              Node.js Developer
-            </span>
-          </motion.h1>
+        <h1 ref={titleRef} className="text-4xl md:text-8xl font-black mb-8 tracking-tighter leading-[1.1]">
+          <span className="text-text-primary">Kishore Kumar</span>
+          <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-secondary">
+            Node.js Developer
+          </span>
+        </h1>
 
-          <motion.p
-            className="text-xl text-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            Backend engineer crafting <span className="text-accent">scalable APIs</span>,
-            <span className="text-accent-secondary"> real-time systems</span> and payment integrations.
-            3+ years building production-grade Node.js applications across social, e-commerce, and mobility platforms.
-          </motion.p>
+        <p ref={textRef} className="text-lg md:text-2xl text-text-secondary mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed font-light px-4">
+          Backend engineer crafting <span className="text-accent font-medium">scalable APIs</span>,
+          <span className="text-accent-secondary font-medium"> real-time systems</span> and payment integrations.
+        </p>
 
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center mb-16 px-4">
+          <button
+            className="btn-primary w-full sm:w-auto min-w-[180px] hover:shadow-[0_0_25px_rgba(0,212,255,0.4)] transition-all"
+            onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
           >
-            <motion.button
-              className="btn-primary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' })}
+            View Projects
+          </button>
+          <button
+            className="btn-outline w-full sm:w-auto min-w-[180px] hover:bg-accent/5 transition-all"
+            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Get in Touch
+          </button>
+        </div>
+
+        <div ref={statsRef} className="flex flex-wrap justify-center gap-6">
+          {[
+            { icon: '📍', text: 'Karachi, PK' },
+            { icon: '🎓', text: 'BSc CS' },
+            { icon: '⚡', text: '3+ Years Exp' }
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="glass-button px-6 py-3 rounded-xl flex items-center gap-3 border-white/10 hover:border-accent/40 transition-colors"
             >
-              View Projects
-            </motion.button>
-            <motion.button
-              className="btn-outline"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
-            >
-              Get in Touch
-            </motion.button>
-          </motion.div>
-
-          <motion.div
-            className="flex flex-wrap justify-center gap-4 mt-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            {[
-              { icon: '📍', text: 'Karachi, Pakistan' },
-              { icon: '🎓', text: 'BSc Computer Science' },
-              { icon: '⚡', text: '3+ Years Experience' }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                className="glass-button px-4 py-2 rounded-lg flex items-center gap-2"
-                whileHover={{ scale: 1.05, y: -2 }}
-              >
-                <span className="text-accent">{item.icon}</span>
-                <span className="text-text-secondary font-mono text-sm">{item.text}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
+              <span className="text-xl">{item.icon}</span>
+              <span className="text-text-secondary font-mono text-sm tracking-wide">{item.text}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )

@@ -1,8 +1,12 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
+import LiquidGlass from './LiquidGlass'
 
 const TechStack = () => {
   const [hoveredTech, setHoveredTech] = useState(null)
+  const sectionRef = useRef(null)
+  const categoryRefs = useRef([])
+  const progressRefs = useRef([])
 
   const techCategories = [
     {
@@ -50,86 +54,102 @@ const TechStack = () => {
     }
   ]
 
+  useEffect(() => {
+    // Category appearance
+    gsap.fromTo(categoryRefs.current,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        }
+      }
+    )
+
+    // Progress bars
+    progressRefs.current.forEach((bar, i) => {
+      const targetWidth = bar.getAttribute('data-level') + '%'
+      gsap.fromTo(bar,
+        { width: '0%' },
+        {
+          width: targetWidth,
+          duration: 1.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: bar,
+            start: 'top 95%',
+          }
+        }
+      )
+    })
+  }, [])
+
   return (
-    <section id="techstack" className="py-12 glass">
+    <section id="techstack" ref={sectionRef} className="py-20 md:py-32 bg-dark-bg/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-12 md:mb-20">
           <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-wider">09</span>
+            <span className="text-accent font-mono text-xs md:text-sm uppercase tracking-widest font-bold">09 / Tech Stack</span>
           </div>
-          <h2 className="section-title">Technology Stack</h2>
-          <p className="section-subtitle">Comprehensive backend development toolkit and expertise</p>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 leading-tight">Comprehensive Arsenal</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-base md:text-lg leading-relaxed">A deep dive into the technologies I leverage for scalable solutions.</p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {techCategories.map((category, categoryIndex) => (
-            <motion.div
+            <div
               key={category.title}
-              className="glass-card glass-hover rounded-xl p-6"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
-              viewport={{ once: true }}
+              ref={el => categoryRefs.current[categoryIndex] = el}
+              className="h-full"
             >
-              <div className={`inline-block px-3 py-1 rounded-full bg-gradient-to-r ${category.color} text-white text-sm font-medium mb-6`}>
-                {category.title}
-              </div>
+              <LiquidGlass className="group" cornerRadius={24}>
+                <div className={`inline-block px-4 py-1 rounded-lg bg-gradient-to-r ${category.color} text-white text-xs font-bold uppercase tracking-widest mb-8`}>
+                  {category.title}
+                </div>
 
-              <div className="space-y-4">
-                {category.technologies.map((tech, techIndex) => (
-                  <motion.div
-                    key={tech.name}
-                    className="relative"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: (categoryIndex * 0.1) + (techIndex * 0.1) }}
-                    viewport={{ once: true }}
-                    onHoverStart={() => setHoveredTech(tech.name)}
-                    onHoverEnd={() => setHoveredTech(null)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{tech.icon}</span>
-                        <span className="font-semibold text-text-primary">{tech.name}</span>
+                <div className="space-y-6">
+                  {category.technologies.map((tech, techIndex) => {
+                    const globalIndex = categoryIndex * 10 + techIndex
+                    return (
+                      <div
+                        key={tech.name}
+                        className="relative group"
+                        onMouseEnter={() => setHoveredTech(tech.name)}
+                        onMouseLeave={() => setHoveredTech(null)}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4">
+                            <span className="text-2xl group-hover:scale-125 transition-transform duration-300">{tech.icon}</span>
+                            <span className="font-bold text-text-primary group-hover:text-accent transition-colors">{tech.name}</span>
+                          </div>
+                          <span className="text-xs text-text-secondary font-mono font-bold">{tech.level}%</span>
+                        </div>
+
+                        <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            ref={el => progressRefs.current[globalIndex] = el}
+                            data-level={tech.level}
+                            className={`h-full rounded-full bg-gradient-to-r ${category.color} shadow-[0_0_10px_rgba(0,212,255,0.2)]`}
+                            style={{ width: '0%' }}
+                          />
+                        </div>
+
+                        {hoveredTech === tech.name && (
+                          <div className="absolute top-[-40px] left-0 bg-dark-card border border-white/10 p-2 rounded-lg z-20 shadow-xl pointer-events-none">
+                            <p className="text-[10px] text-text-secondary whitespace-nowrap px-1 uppercase tracking-tighter">{tech.description}</p>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm text-text-secondary font-mono">{tech.level}%</span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full glass rounded-full h-2 mb-2">
-                      <motion.div
-                        className={`h-2 rounded-full bg-gradient-to-r ${category.color}`}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${tech.level}%` }}
-                        transition={{ duration: 1, delay: (categoryIndex * 0.1) + (techIndex * 0.1) + 0.3 }}
-                        viewport={{ once: true }}
-                      />
-                    </div>
-
-                    {/* Hover Description */}
-                    <AnimatePresence>
-                      {hoveredTech === tech.name && (
-                        <motion.div
-                          className="absolute top-full left-0 right-0 mt-2 p-3 glass-card rounded-lg z-10"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <p className="text-sm text-text-secondary">{tech.description}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    )
+                  })}
+                </div>
+              </LiquidGlass>
+            </div>
           ))}
         </div>
       </div>

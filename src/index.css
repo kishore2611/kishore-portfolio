@@ -2,7 +2,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-@theme {
+:root, [data-theme="dark"] {
   --color-dark-bg: #0a0a0a;
   --color-surface: #111827;
   --color-surface-light: #1f2937;
@@ -10,7 +10,33 @@
   --color-accent-secondary: #00ff88;
   --color-text-primary: #f9fafb;
   --color-text-secondary: #9ca3af;
-  --color-border: #374151;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(18, 26, 42, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="light"] {
+  --color-dark-bg: #fcfdfe;
+  --color-surface: #ffffff;
+  --color-surface-light: #f8fafc;
+  --color-accent: #0ea5e9;
+  --color-accent-secondary: #10b981;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-border: rgba(15, 23, 42, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.5);
+}
+
+@theme {
+  --color-dark-bg: var(--color-dark-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-light: var(--color-surface-light);
+  --color-accent: var(--color-accent);
+  --color-accent-secondary: var(--color-accent-secondary);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border: var(--color-border);
 
   --font-family-inter: 'Inter', sans-serif;
   --font-family-poppins: 'Poppins', sans-serif;
@@ -27,25 +53,32 @@
 }
 
 @keyframes glow {
-  0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
-  100% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+  0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+  100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
 }
 
 @layer base {
   html {
     scroll-behavior: auto;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   body {
     font-family: var(--font-family-inter);
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
-    background-attachment: fixed;
+    background-color: var(--color-dark-bg);
     color: var(--color-text-primary);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     overscroll-behavior-y: contain;
     will-change: transform;
     position: relative;
     transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body::before {
@@ -56,37 +89,25 @@
     right: 0;
     bottom: 0;
     background:
-      radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(255, 107, 107, 0.02) 0%, transparent 50%);
+      radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
+    opacity: 0.5;
+  }
+
+  [data-theme="light"] body::before {
+    background:
+      radial-gradient(circle at 20% 80%, rgba(2, 132, 199, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
   }
 
   * {
     border-color: var(--color-border);
-  }
-
-  /* Smooth scrolling optimizations */
-  html {
-    scroll-behavior: auto;
-  }
-
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Prevent scroll jank */
-  * {
     box-sizing: border-box;
   }
 
-  /* Optimize for smooth scrolling */
-  .lenis {
-    height: auto;
-  }
-
+  /* Optimized for smooth scrolling */
   .lenis.lenis-smooth {
     scroll-behavior: auto;
   }
@@ -94,113 +115,77 @@
   .lenis.lenis-stopped {
     overflow: hidden;
   }
-
-  .lenis.lenis-scrolling iframe {
-    pointer-events: none;
-  }
 }
 
 @layer components {
   .glass {
-    background: rgba(25, 35, 55, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 10px 40px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    will-change: auto;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   }
 
   .glass-card {
-    background: rgba(25, 35, 55, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow:
-      0 14px 50px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-    will-change: auto;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
   }
 
   .glass-card-solid {
-    background: rgba(14, 20, 34, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow:
-      0 18px 60px rgba(0, 0, 0, 0.45);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.1);
   }
 
   .glass-nav {
-    background: rgba(20, 30, 50, 0.68);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 6px 30px rgba(0, 0, 0, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    will-change: auto;
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   }
 
   .glass-button {
-    background: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow:
-      0 5px 20px rgba(0, 0, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: none !important;
+    transition: all 0.3s ease;
+  }
+
+  [data-theme="light"] .glass-button {
+    background: rgba(15, 23, 42, 0.05);
   }
 
   .glass-input {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--color-surface);
     color: var(--color-text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-  }
-
-  .glass-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-    box-shadow:
-      0 16px 48px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .glass-interactive {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
+    border: 1px solid var(--color-border);
+    backdrop-filter: none !important;
   }
 
   .glass-interactive:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-    box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  }
-
-  .glass-interactive:active {
-    transform: translateY(0);
-    box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border-color: var(--color-accent);
   }
 
   .btn-primary {
     padding: 0.75rem 1.5rem;
     background-color: var(--color-accent);
-    color: var(--color-dark-bg);
+    color: #fff;
     font-family: var(--font-family-mono);
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     border: none;
     cursor: pointer;
     transition: all 0.3s;
+    border-radius: 0.5rem;
   }
 
   .btn-primary:hover {
     background-color: var(--color-accent-secondary);
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px color-mix(in srgb, var(--color-accent) 25%, transparent);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px var(--color-accent);
   }
 
   .btn-outline {
@@ -209,36 +194,76 @@
     color: var(--color-accent);
     font-family: var(--font-family-mono);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid var(--color-accent);
+    letter-spacing: 0.1em;
+    border: 2px solid var(--color-accent);
     cursor: pointer;
     transition: all 0.3s;
+    border-radius: 0.5rem;
   }
 
   .btn-outline:hover {
-    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px color-mix(in srgb, var(--color-accent) 25%, transparent);
+    background-color: var(--color-accent);
+    color: #fff;
+    transform: scale(1.02);
   }
 
   .section-title {
-    font-size: 1.625rem;
-    font-weight: bold;
+    font-size: 2.25rem;
+    font-weight: 800;
     color: var(--color-text-primary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
   }
 
   .section-subtitle {
-    font-size: 0.95rem;
+    font-size: 1.125rem;
     color: var(--color-text-secondary);
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
   }
-}
+  .liquid-glass-tamed {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 
-@media (min-width: 768px) {
-  .section-title {
-    font-size: 1.875rem;
+  /* Force all library siblings to behave like layers of the same size */
+  .liquid-glass-tamed > * {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    background: transparent !important;
+  }
+
+  /* The actual content container (3rd child) must be 'relative' to drive height */
+  .liquid-glass-tamed > div:nth-child(3) {
+    position: relative !important;
+    display: block !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Hide the annoying black overlay spans that the library adds for 'elastic' shadow effects */
+  .liquid-glass-tamed > div[class*="bg-black"],
+  .liquid-glass-tamed > span[style*="mixBlendMode"] {
+    display: none !important;
+  }
+
+  .liquid-glass-tamed .glass {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 }
