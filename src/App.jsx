@@ -4,12 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import useCinematicScroll from './hooks/useCinematicScroll'
 import Navigation from './components/Navigation'
 import Hero from './components/Hero'
-import Stats from './components/Stats'
-import GitHubContributions from './components/GitHubContributions'
-import Experience from './components/Experience'
-import Skills from './components/Skills'
-import Projects from './components/Projects'
-import Contact from './components/Contact'
 import GalaxyBackground from './components/GalaxyBackground'
 import AnimatedTechBackground from './components/AnimatedTechBackground'
 import ScrollToTop from './components/ScrollToTop'
@@ -19,28 +13,32 @@ import { uiAudio } from './utils/audio'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ── Lazy-loaded heavy sections ─────────────────────────────────────────────
-const CodeSnippets     = lazy(() => import('./components/CodeSnippets'))
+const Stats = lazy(() => import('./components/Stats'))
+const GitHubContributions = lazy(() => import('./components/GitHubContributions'))
+const Experience = lazy(() => import('./components/Experience'))
+const Skills = lazy(() => import('./components/Skills'))
+const Projects = lazy(() => import('./components/Projects'))
+const CodeSnippets = lazy(() => import('./components/CodeSnippets'))
 const BackendPlayground = lazy(() => import('./components/BackendPlayground'))
-const TechStack        = lazy(() => import('./components/TechStack'))
+const TechStack = lazy(() => import('./components/TechStack'))
+const Contact = lazy(() => import('./components/Contact'))
 
-// ── Skeleton loader ────────────────────────────────────────────────────────
 const SectionSkeleton = memo(({ label = 'Loading' }) => (
-  <section className="py-24 bg-dark-bg">
+  <section className="py-24 bg-dark-bg min-h-[32vh]" style={{ contentVisibility: 'auto' }}>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col items-center mb-16 gap-4">
         <div className="h-6 w-36 rounded-full bg-white/5 animate-pulse" />
         <div className="h-10 w-72 rounded-xl bg-white/5 animate-pulse" />
-        <div className="h-4 w-96 rounded-lg bg-white/5 animate-pulse" />
+        <div className="h-4 w-96 max-w-full rounded-lg bg-white/5 animate-pulse" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-2xl border border-white/5 p-8 space-y-4">
             <div className="h-6 w-3/4 rounded-lg bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
             <div className="h-4 w-full rounded-lg bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
             <div className="h-4 w-5/6 rounded-lg bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
             <div className="flex gap-2 mt-4">
-              {[1, 2, 3].map(j => (
+              {[1, 2, 3].map((j) => (
                 <div key={j} className="h-5 w-16 rounded-md bg-white/5 animate-pulse" />
               ))}
             </div>
@@ -56,14 +54,12 @@ const SectionSkeleton = memo(({ label = 'Loading' }) => (
 ))
 SectionSkeleton.displayName = 'SectionSkeleton'
 
-// ── App ─────────────────────────────────────────────────────────────────────
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [theme, setTheme] = useState('dark')
   const [isInitializing, setIsInitializing] = useState(true)
   const progressBarRef = useRef(null)
   const mainRef = useRef(null)
-  // Throttle mouse to 30 updates/sec to avoid cascading re-renders
   const mouseTick = useRef(0)
 
   useCinematicScroll()
@@ -79,10 +75,9 @@ function App() {
     }
     window.addEventListener('click', initAudio, { once: true })
 
-    // Throttled mouse handler — max 30 React state updates/sec
     const handleMouseMove = (e) => {
       const now = performance.now()
-      if (now - mouseTick.current < 33) return  // ~30fps cap
+      if (now - mouseTick.current < 33) return
       mouseTick.current = now
       setMousePosition({
         x: (e.clientX / window.innerWidth) * 2 - 1,
@@ -91,13 +86,13 @@ function App() {
     }
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
 
-    // Entrance sequence
     const timer = setTimeout(() => {
       setIsInitializing(false)
       if (mainRef.current) {
-        gsap.fromTo(mainRef.current,
+        gsap.fromTo(
+          mainRef.current,
           { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 1.0, ease: 'power4.out' }
+          { opacity: 1, y: 0, duration: 1.0, ease: 'power4.out' },
         )
       }
     }, 700)
@@ -125,13 +120,11 @@ function App() {
 
   const handleToggleTheme = useCallback(() => {
     uiAudio.playClick()
-    setTheme(t => t === 'dark' ? 'light' : 'dark')
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
   }, [])
 
   return (
     <div className="relative min-h-screen bg-dark-bg overflow-x-hidden">
-
-      {/* Initialization Overlay */}
       {isInitializing && (
         <div
           className="fixed inset-0 z-[9999] bg-dark-bg flex items-center justify-center font-mono"
@@ -148,27 +141,37 @@ function App() {
         </div>
       )}
 
-      {/* Custom Cursor */}
       <CustomCursor />
 
-      {/* Galaxy Background */}
       <GalaxyBackground />
 
-      {/* Tech icons + orb parallax */}
       <AnimatedTechBackground mousePosition={mousePosition} />
 
-      {/* Navigation */}
       <Navigation theme={theme} toggleTheme={handleToggleTheme} />
 
-      {/* Main Content */}
       <main ref={mainRef} className="relative z-10 opacity-0">
+        <Hero />
 
-        <Hero mousePosition={mousePosition} />
-        <Stats />
-        <GitHubContributions />
-        <Experience />
-        <Skills />
-        <Projects />
+        <Suspense fallback={<SectionSkeleton label="Loading section..." />}>
+          <Stats />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton label="Loading GitHub..." />}>
+          <GitHubContributions />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton label="Loading experience..." />}>
+          <Experience />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton label="Loading skills..." />}>
+          <Skills />
+        </Suspense>
+
+        <Suspense fallback={<SectionSkeleton label="Loading projects..." />}>
+          <Projects />
+        </Suspense>
+
         <SystemDesign />
 
         <Suspense fallback={<SectionSkeleton label="Loading code editor..." />}>
@@ -180,14 +183,14 @@ function App() {
         </Suspense>
 
         <Suspense fallback={<SectionSkeleton label="Loading tech stack..." />}>
-          <div id="stack-placeholder" />
           <TechStack />
         </Suspense>
 
-        <Contact />
+        <Suspense fallback={<SectionSkeleton label="Loading contact..." />}>
+          <Contact />
+        </Suspense>
       </main>
 
-      {/* Reading progress bar */}
       <div
         ref={progressBarRef}
         className="fixed top-0 left-0 right-0 h-[2px] bg-accent z-[200] origin-left scale-x-0"

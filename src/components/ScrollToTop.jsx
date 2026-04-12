@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
+import { getLenis, scrollToTopSmooth } from '../lib/lenis'
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -7,14 +8,13 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 500) {
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
-      }
+      const lenis = getLenis()
+      const y = typeof lenis?.scroll === 'number' ? lenis.scroll : window.scrollY
+      setIsVisible(y > 500)
     }
 
-    window.addEventListener('scroll', toggleVisibility)
+    toggleVisibility()
+    window.addEventListener('scroll', toggleVisibility, { passive: true })
     return () => window.removeEventListener('scroll', toggleVisibility)
   }, [])
 
@@ -26,8 +26,8 @@ const ScrollToTop = () => {
           y: 0,
           scale: 1,
           duration: 0.4,
-          display: 'flex',
-          ease: 'back.out(1.7)'
+          pointerEvents: 'auto',
+          ease: 'back.out(1.7)',
         })
       } else {
         gsap.to(buttonRef.current, {
@@ -35,27 +35,21 @@ const ScrollToTop = () => {
           y: 20,
           scale: 0.5,
           duration: 0.3,
-          display: 'none',
-          ease: 'power2.in'
+          pointerEvents: 'none',
+          ease: 'power2.in',
         })
       }
     }
   }, [isVisible])
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-  }
-
   return (
     <button
       ref={buttonRef}
-      onClick={scrollToTop}
+      type="button"
+      onClick={() => scrollToTopSmooth()}
       className="fixed bottom-8 right-8 z-50 w-12 h-12 rounded-full glass-button flex items-center justify-center text-accent text-xl shadow-2xl hover:scale-110 active:scale-95 transition-transform"
       aria-label="Scroll to top"
-      style={{ display: 'none', opacity: 0, transform: 'translateY(20px) scale(0.5)' }}
+      style={{ opacity: 0, transform: 'translateY(20px) scale(0.5)', pointerEvents: 'none' }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -65,11 +59,7 @@ const ScrollToTop = () => {
         stroke="currentColor"
         className="w-6 h-6"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M4.5 15.75l7.5-7.5 7.5 7.5"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
       </svg>
     </button>
   )

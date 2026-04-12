@@ -11,32 +11,24 @@ export default defineConfig({
   // ── Build optimisations ─────────────────────────────────────────────────────
   build: {
     target: 'es2020',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.warn'],
-        passes: 2,
-      },
+    minify: 'esbuild',
+    esbuild: {
+      drop: ['debugger'],
+      legalComments: 'none',
     },
     rollupOptions: {
       output: {
-        // Manual chunk splitting — keeps initial bundle tiny
-        manualChunks: {
-          // Core React
-          'vendor-react': ['react', 'react-dom'],
-          // Three.js ecosystem (largest dependency — ~600KB)
-          'vendor-three': ['three'],
-          'vendor-r3f': ['@react-three/fiber', '@react-three/drei'],
-          'vendor-postprocessing': ['@react-three/postprocessing', 'postprocessing'],
-          // Animation stack
-          'vendor-gsap': ['gsap'],
-          'vendor-framer': ['framer-motion'],
-          // Scroll
-          'vendor-lenis': ['lenis'],
-          // Liquid glass
-          'vendor-glass': ['liquid-glass-react'],
+        // Rolldown (Vite 8) expects a function, not a package→chunk map
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (id.includes('react-syntax-highlighter')) return 'vendor-syntax'
+          if (id.includes('lenis')) return 'vendor-lenis'
+          if (id.includes('liquid-glass-react')) return 'vendor-glass'
+          if (id.includes('framer-motion')) return 'vendor-framer'
+          if (id.includes('gsap')) return 'vendor-gsap'
+          if (id.includes('@react-three/fiber') || id.includes('@react-three/drei')) return 'vendor-r3f'
+          if (id.includes('three')) return 'vendor-three'
+          if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react'
         },
         // Content-hash filenames for long-term caching
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -78,8 +70,7 @@ export default defineConfig({
       'three',
     ],
     exclude: [
-      'liquid-glass-react',          // causes issues when pre-bundled
-      '@react-three/postprocessing', // large, lazy-loaded
+      'liquid-glass-react', // causes issues when pre-bundled
     ],
   },
 })
