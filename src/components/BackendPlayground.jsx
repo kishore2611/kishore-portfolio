@@ -138,29 +138,32 @@ const BackendPlayground = () => {
   }
 
   return (
-    <section id="playground" ref={sectionRef} className="py-24 bg-dark-bg/40">
+    <section id="playground" ref={sectionRef} className="py-32 bg-dark-bg/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-widest font-bold">08 / Playground</span>
+        <div className="text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full mb-6 border border-white/10 bg-white/5 backdrop-blur-md">
+            <span className="text-white font-mono text-xs uppercase tracking-[0.2em]">08 / Playground</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-4 tracking-tight">API Environment</h2>
-          <p className="text-text-secondary max-w-2xl mx-auto text-lg leading-relaxed">Interactive node simulation for testing infrastructure protocols.</p>
+          <h2 className="display-font text-5xl md:text-7xl font-bold text-text-primary mb-6 tracking-tighter">API Environment</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">Interactive node simulation for testing infrastructure protocols.</p>
         </div>
 
         <div ref={containerRef} className="glass-card rounded-3xl overflow-hidden border border-white/5 shadow-2xl bg-surface/50">
-          <div className="flex border-b border-white/5 bg-white/[0.02]">
+          <div className="flex border-b border-white/10 bg-white/[0.01]">
             {['api', 'logs'].map((tab) => (
               <button
                 key={tab}
-                className={`flex-1 px-8 py-5 font-bold text-xs uppercase tracking-widest transition-all duration-300 ${
+                className={`flex-1 px-8 py-6 font-mono text-[10px] uppercase tracking-[0.2em] transition-all duration-500 relative ${
                   activeTab === tab
-                    ? 'text-accent border-b-2 border-accent bg-accent/5'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.02]'
+                    ? 'text-white'
+                    : 'text-text-secondary hover:text-white'
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab === 'api' ? 'Network Simulator' : 'Terminal Output'}
+                {activeTab === tab && (
+                  <div className="absolute bottom-0 left-0 w-full h-px bg-white" />
+                )}
               </button>
             ))}
           </div>
@@ -169,50 +172,40 @@ const BackendPlayground = () => {
             {activeTab === 'api' ? (
               <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-12">
                 <div className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-[100px_1fr] gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-6">
                     <div>
-                      <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Method</label>
+                      <label className="block text-[10px] font-mono text-white opacity-40 uppercase tracking-[0.2em] mb-4">Method</label>
                       <select
                         value={method}
                         onChange={(e) => setMethod(e.target.value)}
-                        className="w-full h-12 px-4 bg-white/5 border border-white/10 rounded-xl font-bold text-xs focus:ring-1 focus:ring-accent outline-none appearance-none cursor-pointer"
+                        className="w-full h-14 px-5 bg-white/[0.02] border border-white/10 rounded-xl font-mono text-xs text-white focus:ring-1 focus:ring-white outline-none appearance-none cursor-pointer"
                       >
-                        <option>GET</option>
-                        <option>POST</option>
-                        <option>PUT</option>
-                        <option>PATCH</option>
-                        <option>DELETE</option>
+                        <option className="bg-dark-bg">GET</option>
+                        <option className="bg-dark-bg">POST</option>
+                        <option className="bg-dark-bg">PUT</option>
+                        <option className="bg-dark-bg">PATCH</option>
+                        <option className="bg-dark-bg">DELETE</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Endpoint</label>
+                      <label className="block text-[10px] font-mono text-white opacity-40 uppercase tracking-[0.2em] mb-4">Endpoint</label>
                       <input
                         type="text"
                         value={apiEndpoint}
                         onChange={(e) => setApiEndpoint(e.target.value)}
-                        className="w-full h-12 px-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-sm"
+                        className="w-full h-14 px-6 bg-white/[0.02] border border-white/10 rounded-xl focus:ring-1 focus:ring-white outline-none font-mono text-sm text-white"
                         placeholder="/api/v1/auth"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Request Headers</label>
-                    <textarea
-                      value={headers}
-                      onChange={(e) => setHeaders(e.target.value)}
-                      rows={3}
-                      className="w-full p-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-xs resize-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-accent uppercase tracking-widest mb-3">Payload (JSON)</label>
+                    <label className="block text-[10px] font-mono text-white opacity-40 uppercase tracking-[0.2em] mb-4">Payload (JSON)</label>
                     <textarea
                       value={requestBody}
                       onChange={(e) => setRequestBody(e.target.value)}
-                      rows={5}
-                      className="w-full p-5 bg-white/5 border border-white/10 rounded-xl focus:ring-1 focus:ring-accent outline-none font-mono text-xs resize-none"
+                      rows={6}
+                      className="w-full p-6 bg-white/[0.02] border border-white/10 rounded-xl focus:ring-1 focus:ring-white outline-none font-mono text-xs text-white resize-none"
                       placeholder='{ "action": "deploy" }'
                     />
                   </div>
@@ -220,12 +213,9 @@ const BackendPlayground = () => {
                   <button
                     onClick={simulateApiCall}
                     disabled={isLoading}
-                    className="w-full h-14 bg-accent text-dark-bg font-bold rounded-xl hover:bg-accent-secondary transition-all duration-300 disabled:opacity-50 group overflow-hidden relative"
+                    className="w-full h-16 bg-white text-dark-bg font-bold font-mono text-xs uppercase tracking-[0.2em] rounded-xl hover:scale-[1.02] transition-all duration-500 disabled:opacity-50"
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                      {isLoading ? 'Executing Protocol...' : 'Invoke Request'}
-                      {!isLoading && <span className="group-hover:translate-x-2 transition-transform duration-300">→</span>}
-                    </span>
+                    {isLoading ? 'Executing Protocol...' : 'Invoke Request'}
                   </button>
                 </div>
 

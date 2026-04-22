@@ -270,14 +270,14 @@ const SystemDesign = () => {
   }, [])
 
   return (
-    <section id="system-design" ref={sectionRef} className="py-24 bg-dark-bg">
+    <section id="system-design" ref={sectionRef} className="py-32 bg-dark-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-widest font-bold">06 / System Design</span>
+        <div className="text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full mb-6 border border-white/10 bg-white/5 backdrop-blur-md">
+            <span className="text-white font-mono text-xs uppercase tracking-[0.2em]">06 / System Design</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-4 tracking-tight">Architectural Strategy</h2>
-          <p className="text-text-secondary max-w-2xl mx-auto text-lg leading-relaxed">
+          <h2 className="display-font text-5xl md:text-7xl font-bold text-text-primary mb-6 tracking-tighter">Architectural Strategy</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">
             Designing high-availability distributed systems for maximum performance and resilience.
           </p>
         </div>
@@ -384,14 +384,14 @@ const SystemDesign = () => {
           {designs.map((design, index) => (
             <div key={index} ref={(el) => (designsRef.current[index] = el)} className="h-full">
               <LiquidGlass className="group h-full" cornerRadius={24}>
-                <h4 className="text-xl font-bold text-text-primary mb-3 group-hover:text-accent transition-colors leading-snug">{design.title}</h4>
-                <p className="text-text-secondary mb-5 leading-relaxed text-sm opacity-80">{design.description}</p>
+                <h4 className="display-font text-2xl font-bold text-white mb-4 group-hover:text-accent-secondary transition-colors duration-500 tracking-tight">{design.title}</h4>
+                <p className="text-text-secondary mb-8 leading-relaxed text-sm md:text-base font-light opacity-60 group-hover:opacity-100 transition-opacity duration-500">{design.description}</p>
 
-                <div className="mb-5">
-                  <h5 className="text-accent-secondary font-bold text-[10px] uppercase tracking-widest mb-3">Core Components</h5>
-                  <ul className="space-y-2">
+                <div className="mb-10 pt-6 border-t border-white/5">
+                  <h5 className="text-white opacity-40 font-mono text-[10px] uppercase tracking-[0.2em] mb-6">Core Components</h5>
+                  <ul className="grid grid-cols-2 gap-4">
                     {design.components.map((component, i) => (
-                      <li key={i} className="text-text-secondary text-xs flex items-center gap-3">
+                      <li key={i} className="text-text-secondary text-xs font-light flex items-center gap-3">
                         <span
                           className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                           style={{ background: NODES[Math.min(i, NODES.length - 1)].color }}
@@ -402,13 +402,13 @@ const SystemDesign = () => {
                   </ul>
                 </div>
 
-                <div>
-                  <h5 className="text-text-primary font-bold text-[10px] uppercase tracking-widest mb-3">Tech Stack</h5>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="pt-6 border-t border-white/5">
+                  <h5 className="text-white opacity-40 font-mono text-[10px] uppercase tracking-[0.2em] mb-6">Tech Stack</h5>
+                  <div className="flex flex-wrap gap-2">
                     {design.technologies.map((tech, i) => (
                       <span
                         key={i}
-                        className="px-2 py-1 bg-white/5 text-text-secondary font-mono text-[9px] uppercase border border-white/10 rounded-md hover:border-accent/40 transition-colors"
+                        className="px-2.5 py-1 bg-white/5 text-text-secondary font-mono text-[9px] uppercase font-bold border border-white/10 rounded hover:border-white/40 transition-colors duration-300"
                       >
                         {tech}
                       </span>

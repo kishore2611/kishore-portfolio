@@ -54,8 +54,14 @@ const CustomCursor = () => {
       }
     }
 
-    const onMouseDown = () => ring.classList.add('cursor-click')
-    const onMouseUp = () => ring.classList.remove('cursor-click')
+    const onMouseDown = () => {
+      dot.style.transform = `translate(${mouseX}px, ${mouseY}px) scale(0.5)`
+      ring.classList.add('cursor-click')
+    }
+    const onMouseUp = () => {
+      dot.style.transform = `translate(${mouseX}px, ${mouseY}px) scale(1)`
+      ring.classList.remove('cursor-click')
+    }
 
     window.addEventListener('mousemove', onMouseMove, { passive: true })
     window.addEventListener('mouseover', onMouseOver, { passive: true })
@@ -83,15 +89,14 @@ const CustomCursor = () => {
           position: fixed;
           top: -4px;
           left: -4px;
-          width: 8px;
-          height: 8px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: #00d4ff;
+          background: #ffffff;
           pointer-events: none;
           z-index: 999999;
           will-change: transform;
-          transition: width 0.2s, height 0.2s, background 0.2s;
-          mix-blend-mode: difference;
+          transition: width 0.3s, height 0.3s, background 0.3s;
         }
         .cursor-dot.cursor-hover {
           width: 0;
@@ -105,31 +110,34 @@ const CustomCursor = () => {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          border: 1.5px solid rgba(0, 212, 255, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           pointer-events: none;
           z-index: 999998;
           will-change: transform;
-          transition: width 0.25s cubic-bezier(.34,1.56,.64,1),
-                      height 0.25s cubic-bezier(.34,1.56,.64,1),
-                      border-color 0.2s,
-                      top 0.25s,
-                      left 0.25s;
-          box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+          transition: width 0.4s cubic-bezier(.17,.67,.83,.67),
+                      height 0.4s cubic-bezier(.17,.67,.83,.67),
+                      border-color 0.4s,
+                      background 0.4s;
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
         }
         .cursor-ring.cursor-hover {
-          width: 64px;
-          height: 64px;
-          top: -32px;
-          left: -32px;
-          border-color: rgba(0, 212, 255, 0.9);
-          box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+          width: 80px;
+          height: 80px;
+          top: -40px;
+          left: -40px;
+          border-color: var(--color-accent);
+          background: rgba(200, 168, 122, 0.05);
+          backdrop-filter: blur(4px);
+          box-shadow: 0 0 30px rgba(200, 168, 122, 0.15);
         }
         .cursor-ring.cursor-click {
-          width: 28px;
-          height: 28px;
-          top: -14px;
-          left: -14px;
-          border-color: rgba(0, 255, 136, 0.9);
+          width: 20px;
+          height: 20px;
+          top: -10px;
+          left: -10px;
+          border-color: var(--color-accent-vibrant);
+          background: var(--color-accent-soft);
+          box-shadow: 0 0 20px var(--color-accent-vibrant);
         }
       `}</style>
       <div ref={dotRef} className="cursor-dot" />

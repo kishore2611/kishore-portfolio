@@ -91,22 +91,22 @@ const AnimatedTechBackground = memo(({ mousePosition }) => {
       {/* Cursor glow orbs */}
       <div
         ref={(n) => { orbsRef.current[0] = n }}
-        className="absolute w-[460px] h-[460px] rounded-full pointer-events-none will-change-transform"
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none will-change-transform"
         style={{
-          background: 'radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 80%)',
+          background: 'radial-gradient(circle, rgba(255,51,102,0.1) 0%, transparent 70%)',
           left: '40%', top: '40%',
           transform: 'translate(-50%, -50%)',
-          opacity: 0.85,
+          opacity: 0.6,
         }}
       />
       <div
         ref={(n) => { orbsRef.current[1] = n }}
-        className="absolute w-[320px] h-[320px] rounded-full pointer-events-none will-change-transform"
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none will-change-transform"
         style={{
-          background: 'radial-gradient(circle, rgba(0,255,136,0.22) 0%, transparent 80%)',
+          background: 'radial-gradient(circle, rgba(94,23,235,0.12) 0%, transparent 70%)',
           left: '60%', top: '30%',
           transform: 'translate(-50%, -50%)',
-          opacity: 0.75,
+          opacity: 0.5,
         }}
       />
     </div>

@@ -1,158 +1,120 @@
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import LiquidGlass from './LiquidGlass'
+import { memo, useState } from 'react'
+import { SectionLayout } from './EditorialLayout'
 
 const Skills = () => {
-  const skillCategories = [
-    {
-      title: 'Backend Runtime',
-      icon: '⚙️',
-      skills: ['Node.js', 'Express.js', 'NestJS'],
-      description: 'Building robust server-side applications with modern frameworks',
-    },
-    {
-      title: 'Databases',
-      icon: '🗄️',
-      skills: ['MongoDB', 'PostgreSQL', 'MySQL', 'Redis'],
-      description: 'Designing efficient data storage and retrieval systems',
-    },
-    {
-      title: 'Payments & APIs',
-      icon: '💳',
-      skills: ['Stripe', 'PayPal', 'REST APIs', 'GraphQL'],
-      description: 'Integrating payment systems and building scalable APIs',
-    },
-    {
-      title: 'Real-time Systems',
-      icon: '📡',
-      skills: ['Socket.IO', 'WebSocket', 'Redis Pub/Sub'],
-      description: 'Creating real-time communication and event-driven architectures',
-    },
-    {
-      title: 'Live Streaming',
-      icon: '🎥',
-      skills: ['Agora', '100MS', 'WebRTC'],
-      description: 'Implementing live video streaming and interactive features',
-    },
-    {
-      title: 'Security & Auth',
-      icon: '🔒',
-      skills: ['OAuth', 'JWT', 'bcrypt', 'helmet'],
-      description: 'Implementing secure authentication and authorization systems',
-    },
-    {
-      title: 'DevOps & Tools',
-      icon: '🛠️',
-      skills: ['Docker', 'AWS', 'Git', 'PM2'],
-      description: 'Deployment, monitoring, and development workflow optimization',
-    },
-    {
-      title: 'Testing & Quality',
-      icon: '✅',
-      skills: ['Jest', 'Supertest', 'ESLint', 'Prettier'],
-      description: 'Ensuring code quality and reliability through comprehensive testing',
-    },
-  ]
+  const [activeTab, setActiveTab] = useState('technical')
 
-  const sectionRef = useRef(null)
-  const cardsRef = useRef([])
-
-  useEffect(() => {
-    gsap.fromTo(cardsRef.current,
-      { opacity: 0, scale: 0.9, y: 30 },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.08,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-        }
-      }
-    )
-  }, [])
-
-  const handleMouseEnter = (index) => {
-    gsap.to(cardsRef.current[index], {
-      y: -8,
-      duration: 0.3,
-      ease: 'power2.out'
-    })
-    gsap.to(cardsRef.current[index].querySelector('.skill-icon'), {
-      rotationZ: 360,
-      duration: 0.6,
-      ease: 'power1.inOut'
-    })
-  }
-
-  const handleMouseLeave = (index) => {
-    gsap.to(cardsRef.current[index], {
-      y: 0,
-      duration: 0.3,
-      ease: 'power2.in'
-    })
-    gsap.to(cardsRef.current[index].querySelector('.skill-icon'), {
-      rotationZ: 0,
-      duration: 0.5,
-      ease: 'power1.inOut'
-    })
+  const skillTabs = {
+    technical: [
+      { name: 'Node.js', icon: '🟢' },
+      { name: 'Express', icon: '🚀' },
+      { name: 'NestJS', icon: '⚛️' },
+      { name: 'MongoDB', icon: '🍃' },
+      { name: 'Postgres', icon: '🐘' },
+      { name: 'Redis', icon: '🔴' },
+      { name: 'REST APIs', icon: '🔗' },
+      { name: 'GraphQL', icon: '📊' },
+    ],
+    tools: [
+      { name: 'Docker', icon: '🐳' },
+      { name: 'AWS', icon: '☁️' },
+      { name: 'Git', icon: '🐙' },
+      { name: 'Jest', icon: '✅' },
+      { name: 'PM2', icon: '🛠️' },
+      { name: 'VS Code', icon: '💻' },
+    ],
+    design: [
+      { name: 'System Design', icon: '🏗️' },
+      { name: 'Dist. Systems', icon: '🔄' },
+      { name: 'Microservices', icon: '🌩️' },
+      { name: 'Security', icon: '🔒' },
+    ]
   }
 
   return (
-    <section id="skills" ref={sectionRef} className="py-20 md:py-32 bg-dark-bg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 md:mb-20">
-          <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-xs md:text-sm uppercase tracking-widest font-bold">04 / Skills</span>
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 leading-tight">Technical Prowess</h2>
-          <p className="text-text-secondary max-w-2xl mx-auto text-base md:text-lg">Modern tech stack for building high-performance backend systems.</p>
+    <SectionLayout
+      id="skills"
+      theme="dk"
+      eyebrow="02 — Skills"
+      title="Beyond<br/><span style='color:var(--color-accent)'>Classroom.</span>"
+      description="From low-level server logic to modern scalable architectures — a full spectrum of technical and creative skills refined through real projects."
+      sidenav={[
+        { label: 'Technical', active: activeTab === 'technical' },
+        { label: 'Tools', active: activeTab === 'tools' },
+        { label: 'Architecture', active: activeTab === 'design' }
+      ]}
+      codeCard={{
+        filename: 'skills.ts',
+        code: (
+          <>
+            <span className="key">const</span> <span className="syntax">skills</span> = {'{'}<br/>
+            &nbsp;&nbsp;<span className="key">backend</span>: [<span className="val">'Node'</span>,<span className="val">'Nest'</span>],<br/>
+            &nbsp;&nbsp;<span className="key">db</span>:      [<span className="val">'Postgres'</span>,<span className="val">'Redis'</span>],<br/>
+            &nbsp;&nbsp;<span className="key">cloud</span>:   [<span className="val">'AWS'</span>,<span className="val">'Docker'</span>],<br/>
+            &nbsp;&nbsp;<span className="key">scalable</span>: <span className="key">true</span>,<br/>
+            {'}'};
+          </>
+        )
+      }}
+      bgSvg={(
+        <svg width="580" height="580" viewBox="0 0 580 580">
+          <g fill="none" stroke="#c8a87a" strokeWidth=".7">
+            <rect x="50" y="50" width="480" height="480" rx="6"/>
+            <rect x="90" y="90" width="400" height="400" rx="5"/>
+            <rect x="130" y="130" width="320" height="320" rx="4"/>
+            <circle cx="290" cy="290" r="220"/>
+            <line x1="50" y1="290" x2="530" y2="290"/>
+            <line x1="290" y1="50" x2="290" y2="530"/>
+          </g>
+        </svg>
+      )}
+    >
+      <div className="w-full flex flex-col gap-6">
+        <div className="flex gap-2">
+          {Object.keys(skillTabs).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 font-mono text-[9px] uppercase tracking-widest rounded border transition-all duration-300 ${
+                activeTab === tab 
+                  ? 'bg-white text-dark border-white' 
+                  : 'bg-transparent text-muted border-[#c6bfb2]'
+              }`}
+            >
+              {tab === 'design' ? 'Architecture' : tab}
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {skillCategories.map((category, index) => (
-            <LiquidGlass
-              key={index}
-              className="h-full"
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {skillTabs[activeTab].map((skill, i) => (
+            <div 
+              key={i} 
+              onMouseMove={(e) => {
+                const card = e.currentTarget;
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+              }}
+              className="relative bg-dark-soft/40 border border-white/5 rounded-2xl p-8 flex flex-col items-center gap-4 hover:border-accent/30 transition-all duration-500 group overflow-hidden"
+              style={{
+                background: 'radial-gradient(400px circle at var(--mouse-x) var(--mouse-y), rgba(200, 168, 122, 0.08), transparent 40%)'
+              }}
             >
-              <div
-                ref={el => cardsRef.current[index] = el}
-                onMouseEnter={() => handleMouseEnter(index)}
-                onMouseLeave={() => handleMouseLeave(index)}
-                className="p-8 h-full transition-colors cursor-default"
-              >
-                <div className="skill-icon text-5xl mb-6 inline-block">
-                  {category.icon}
-                </div>
-
-                <h3 className="text-xl font-black text-text-primary mb-3">
-                  {category.title}
-                </h3>
-
-                <p className="text-text-secondary text-sm mb-8 leading-relaxed opacity-70">
-                  {category.description}
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill, skillIndex) => (
-                    <span
-                      key={skillIndex}
-                      className="px-3 py-1 bg-accent/5 text-accent font-mono text-[9px] uppercase font-black rounded-lg border border-accent/10 whitespace-nowrap"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </LiquidGlass>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                   style={{ background: 'radial-gradient(120px circle at var(--mouse-x) var(--mouse-y), rgba(200, 168, 122, 0.15), transparent 80%)' }} />
+              <span className="text-4xl filter grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-110">{skill.icon}</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted text-center group-hover:text-white transition-colors">
+                {skill.name}
+              </span>
+            </div>
           ))}
         </div>
       </div>
-    </section>
+    </SectionLayout>
   )
 }
 
-export default Skills
+export default memo(Skills)

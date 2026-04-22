@@ -197,32 +197,32 @@ const handleWebhook = async (req, res) => {
   }, [isTyping])
 
   return (
-    <section id="code" ref={sectionRef} className="py-24 bg-dark-bg/60">
+    <section id="code" ref={sectionRef} className="py-32 bg-dark-bg/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-sm uppercase tracking-widest font-bold">07 / Patterns</span>
+        <div className="text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full mb-6 border border-white/10 bg-white/5 backdrop-blur-md">
+            <span className="text-white font-mono text-xs uppercase tracking-[0.2em]">07 / Patterns</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-4 tracking-tight">Code Architecture</h2>
-          <p className="text-text-secondary max-w-2xl mx-auto text-lg leading-relaxed">Production-grade implementations for critical backend flows.</p>
+          <h2 className="display-font text-5xl md:text-7xl font-bold text-text-primary mb-6 tracking-tighter">Code Architecture</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed">Production-grade implementations for critical backend flows.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div ref={navRef} className="lg:col-span-1 space-y-4">
+          <div ref={navRef} className="lg:col-span-1 space-y-6">
             {snippets.map((snippet, index) => (
               <button
                 key={index}
-                className={`w-full text-left p-6 glass-card rounded-2xl border transition-all duration-300 group ${
+                className={`w-full text-left p-8 rounded-2xl border transition-all duration-500 group ${
                   activeSnippet === index 
-                    ? 'border-accent/40 bg-accent/5 shadow-[0_0_20px_rgba(0,212,255,0.05)]' 
+                    ? 'border-white/40 bg-white/5 shadow-[0_0_50px_rgba(255,255,255,0.05)]' 
                     : 'border-white/5 hover:border-white/10 hover:bg-white/[0.02]'
                 }`}
                 onClick={() => setActiveSnippet(index)}
               >
-                <h3 className={`font-bold mb-2 group-hover:text-accent transition-colors ${activeSnippet === index ? 'text-accent' : 'text-text-primary'}`}>
+                <h3 className={`display-font text-lg font-bold mb-3 transition-colors duration-500 ${activeSnippet === index ? 'text-white' : 'text-text-secondary'}`}>
                   {snippet.title}
                 </h3>
-                <p className="text-text-secondary text-xs leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity">
+                <p className="text-text-secondary text-[11px] leading-relaxed opacity-50 group-hover:opacity-100 transition-opacity duration-500 font-light">
                   {snippet.description}
                 </p>
               </button>
@@ -231,14 +231,14 @@ const handleWebhook = async (req, res) => {
 
           <div ref={displayRef} className="lg:col-span-3">
             <div className="glass-card rounded-3xl overflow-hidden border border-white/5 shadow-2xl bg-surface-light">
-              <div className="px-6 py-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+              <div className="px-8 py-5 flex items-center justify-between border-b border-white/10 bg-white/[0.01]">
                 <div className="flex gap-2.5">
-                  <div className="w-3 h-3 bg-[#ff5f56] rounded-full"></div>
-                  <div className="w-3 h-3 bg-[#ffbd2e] rounded-full"></div>
-                  <div className="w-3 h-3 bg-[#27c93f] rounded-full"></div>
+                  <div className="w-3 h-3 bg-white/10 rounded-full"></div>
+                  <div className="w-3 h-3 bg-white/10 rounded-full"></div>
+                  <div className="w-3 h-3 bg-white/10 rounded-full"></div>
                 </div>
-                <div className="text-text-secondary font-mono text-xs opacity-50 absolute left-1/2 -translate-x-1/2">
-                  kishore.js / {snippets[activeSnippet].title.toLowerCase().replace(/\s+/g, '-')}
+                <div className="text-text-secondary font-mono text-[10px] uppercase tracking-widest opacity-30 absolute left-1/2 -translate-x-1/2">
+                  {snippets[activeSnippet].language}.js
                 </div>
                 <button 
                   className="text-accent hover:text-white transition-colors font-mono text-xs font-bold px-3 py-1 rounded"

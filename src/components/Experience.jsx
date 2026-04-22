@@ -1,9 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import LiquidGlass from './LiquidGlass'
-
-gsap.registerPlugin(ScrollTrigger)
+import { memo } from 'react'
+import { SectionLayout } from './EditorialLayout'
 
 const Experience = () => {
   const experiences = [
@@ -46,89 +42,75 @@ const Experience = () => {
     },
   ]
 
-  const sectionRef = useRef(null)
-  const cardsRef = useRef([])
-
-  useEffect(() => {
-    const cards = cardsRef.current
-
-    gsap.fromTo(cards,
-      { opacity: 0, y: 50, scale: 0.98 },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-        }
-      }
-    )
-  }, [])
-
   return (
-    <section id="experience" ref={sectionRef} className="py-20 md:py-32 bg-dark-bg/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 md:mb-20">
-          <div className="inline-block px-4 py-2 glass-button rounded-full mb-4">
-            <span className="text-accent font-mono text-xs md:text-sm uppercase tracking-widest font-bold">03 / Experience</span>
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-text-primary mb-4 leading-tight tracking-tighter">Professional Journey</h2>
-          <p className="text-text-secondary max-w-2xl mx-auto text-base md:text-lg leading-relaxed">Building production-grade systems across diverse industries.</p>
-        </div>
-
-        <div className="grid gap-6 md:gap-10">
-          {experiences.map((exp, index) => (
-            <LiquidGlass
-              key={index}
-              className="w-full"
-            >
-              <div
-                ref={el => cardsRef.current[index] = el}
-                className="p-8 md:p-12 transition-all duration-300 group"
-              >
-                <div className="grid lg:grid-cols-[1fr_2fr] gap-10">
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-2xl md:text-3xl font-black text-text-primary group-hover:text-accent transition-colors leading-none tracking-tight">{exp.company}</h3>
-                      <p className="text-accent-secondary font-mono text-sm mt-3 font-bold uppercase tracking-widest">{exp.role}</p>
-                    </div>
-                    <div className="space-y-3">
-                      <p className="flex items-center gap-3 text-text-secondary font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] font-black">
-                        <span className="w-6 h-[1px] bg-accent"></span>
-                        {exp.period}
-                      </p>
-                      <p className="text-text-secondary font-mono text-[10px] md:text-xs uppercase tracking-[0.2em] opacity-50 font-black">
-                        {exp.location}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute -left-5 top-0 bottom-0 w-[1px] bg-white/10 hidden lg:block" />
-                    <ul className="space-y-6">
-                      {exp.points.map((point, pointIndex) => (
-                        <li
-                          key={pointIndex}
-                          className="text-text-secondary leading-relaxed flex items-start gap-4 text-sm md:text-base font-medium"
-                        >
-                          <span className="w-2 h-2 rounded-full bg-accent mt-2 shrink-0 shadow-[0_0_10px_#00d4ff]"></span>
-                          <span className="opacity-80 group-hover:opacity-100 transition-opacity">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+    <SectionLayout
+      id="experience"
+      theme="dk"
+      eyebrow="05 — Experience"
+      title="Professional<br/><span style='color:var(--color-accent)'>Trajectory.</span>"
+      description="Crafting scalable backends and real-time systems across various industries and roles."
+      sidenav={[
+        { label: 'Full Time', active: true },
+        { label: 'Contract' },
+        { label: 'Architecture' }
+      ]}
+      codeCard={{
+        filename: 'experience.ts',
+        code: (
+          <>
+            <span className="key">const</span> <span className="syntax">totalExp</span> = <span className="val">'2.5+ Years'</span>;<br/>
+            <span className="key">const</span> <span className="syntax">roles</span> = [<br/>
+            &nbsp;&nbsp;<span className="val">'Node.js Developer'</span>,<br/>
+            &nbsp;&nbsp;<span className="val">'Software Engineer'</span><br/>
+            ];
+          </>
+        )
+      }}
+      bgSvg={(
+        <svg width="600" height="600" viewBox="0 0 600 600">
+          <g fill="none" stroke="#c8a87a" strokeWidth=".7">
+            <circle cx="300" cy="300" r="280"/><circle cx="300" cy="300" r="250"/>
+            <line x1="20" y1="300" x2="580" y2="300"/>
+            <line x1="300" y1="20" x2="300" y2="580"/>
+          </g>
+        </svg>
+      )}
+    >
+      <div className="relative pl-8 w-full max-w-2xl">
+        <div className="absolute left-0 top-1.5 bottom-0 w-[1px] bg-gradient-to-b from-accent to-[#2a2830]" />
+        
+        <div className="space-y-16">
+          {experiences.map((exp, i) => (
+            <div key={i} className="relative group">
+              <div className="absolute -left-[37px] top-1.5 w-[13px] h-[13px] rounded-full border border-accent bg-dark group-hover:bg-accent transition-all duration-300 shadow-[0_0_15px_rgba(200,168,122,0.6)]">
+                <div className="absolute inset-0 rounded-full bg-accent opacity-20 animate-ping group-hover:opacity-40" />
+              </div>
+              
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
+                <div>
+                  <h3 className="display-font text-2xl font-bold text-white leading-none uppercase">{exp.role}</h3>
+                  <span className="font-mono text-[10px] text-accent uppercase tracking-widest mt-2 block">{exp.company}</span>
+                </div>
+                <div className="text-right flex flex-col items-start md:items-end">
+                   <span className="font-mono text-[9.5px] text-[#5e5c62] tracking-widest uppercase">{exp.period}</span>
+                   <span className="font-mono text-[8.5px] text-[#3a3840] tracking-widest uppercase mt-1">{exp.location}</span>
                 </div>
               </div>
-            </LiquidGlass>
+
+              <ul className="space-y-3 mt-6">
+                {exp.points.map((point, pi) => (
+                  <li key={pi} className="flex gap-3 text-[12px] text-[#5e5c62] leading-relaxed font-light group-hover:text-[#a1a1aa] transition-colors">
+                    <span className="text-accent mt-1">▹</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </div>
-    </section>
+    </SectionLayout>
   )
 }
 
-export default Experience
+export default memo(Experience)
