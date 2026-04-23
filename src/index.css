@@ -77,8 +77,8 @@
 
   section {
     position: relative;
-    min-height: 100vh;
-    padding: 120px 0 160px 0;
+    min-height: 100dvh;
+    padding: clamp(80px, 8vw, 120px) 0 clamp(100px, 8vw, 160px) 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -90,6 +90,14 @@
 
   #home {
     min-height: 100vh;
+  }
+
+  #model-showcase,
+  #model-showcase-2,
+  #model-showcase-3 {
+    min-height: auto;
+    padding: 0;
+    display: block;
   }
 }
 
@@ -119,7 +127,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .inner-container {
       padding: 0 24px;
       gap: 32px;
@@ -127,7 +135,7 @@
     }
     
     .sec-title {
-      font-size: 34px;
+      font-size: clamp(28px, 8vw, 40px);
       line-height: 1.1;
       margin-bottom: 12px;
       word-break: break-word;
@@ -135,6 +143,26 @@
 
     .sidenav-links {
       display: none !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .inner-container {
+      padding: 0 16px;
+      gap: 24px;
+    }
+    
+    section {
+      padding: 60px 0 80px;
+    }
+    
+    .eyebrow {
+      font-size: 9px;
+    }
+    
+    .sec-desc {
+      font-size: 13px;
+      max-width: 100%;
     }
   }
 

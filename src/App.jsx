@@ -13,6 +13,7 @@ import Preloader from './components/Preloader'
 import { uiAudio } from './utils/audio'
 import { scrollEngine } from './utils/scrollEngine'
 import { initMasterTimeline, updateMasterTimeline } from './animations/masterTimeline'
+import useCinematicScroll from './hooks/useCinematicScroll'
 
 const Experience = lazy(() => import('./components/Experience'))
 const Skills = lazy(() => import('./components/Skills'))
@@ -22,17 +23,25 @@ const Contact = lazy(() => import('./components/Contact'))
 const Stats = lazy(() => import('./components/Stats'))
 const Process = lazy(() => import('./components/Process'))
 const Testimonials = lazy(() => import('./components/Testimonials'))
+const ModelShowcase = lazy(() => import('./components/ModelShowcase'))
+const ModelShowcase2 = lazy(() => import('./components/ModelShowcase2'))
+const ModelShowcase3 = lazy(() => import('./components/ModelShowcase3'))
 
 function App() {
   const [isInitializing, setIsInitializing] = useState(true)
   const mainRef = useRef(null)
 
+  // Lenis smooth scroll integration
+  useCinematicScroll()
+
   useEffect(() => {
     const initAudio = () => {
       uiAudio.init()
       window.removeEventListener('click', initAudio)
+      window.removeEventListener('touchstart', initAudio)
     }
     window.addEventListener('click', initAudio)
+    window.addEventListener('touchstart', initAudio, { passive: true })
     
     // Smooth scroll setup
     scrollEngine.onUpdate((progress) => {
@@ -63,14 +72,17 @@ function App() {
       {!isInitializing && (
         <main ref={mainRef} className="relative z-10">
           <Hero />
-          
+
           <Suspense fallback={<div className="h-screen bg-dark" />}>
+            <ModelShowcase />
             <About />
             <Skills />
+            <ModelShowcase2 />
             <Process />
             <GitHub />
             <Stats />
             <Projects />
+            <ModelShowcase3 />
             <Experience />
             <Testimonials />
             <Contact />
@@ -81,7 +93,7 @@ function App() {
       <footer className="bg-[#1f1e22] border-t border-[#222028] py-20 px-8 lg:px-[88px] relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-10">
           <div>
-            <h1 className="font-display font-[800] text-xl text-white">K<span className="text-accent">.</span>S</h1>
+            <h1 className="font-display font-[800] text-xl text-white">KK<span className="text-accent">.</span>Dev</h1>
             <p className="font-mono text-[9.5px] text-[#333040] mt-4 uppercase tracking-widest">© 2026 Kishore Kumar. All bits reserved.</p>
             <p className="font-display text-[11px] text-[#333040] italic mt-2">"Architecting excellence, one line at a time."</p>
           </div>
@@ -98,6 +110,7 @@ function App() {
       <Ticker />
       <SideLabels labels={['Backend Engineer', 'Architect', 'Node.js', 'Scaling']} />
       <CustomCursor />
+      {/* CustomCursor already disables itself on touch devices */}
     </div>
   )
 }

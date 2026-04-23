@@ -8,7 +8,7 @@ class ScrollEngine {
   constructor() {
     this.progress = 0;
     this.targetProgress = 0;
-    this.smoothing = 0.1; // Adjust for more/less lag
+    this.smoothing = 0.18; // More responsive, less lag
     this.isLocked = false;
     this.callbacks = [];
 
