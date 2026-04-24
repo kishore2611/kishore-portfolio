@@ -1,8 +1,8 @@
 import { memo, useState } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Contact3D } from './section3d'
 
 const Contact = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
 
   return (
     <SectionLayout
@@ -28,6 +28,7 @@ const Contact = () => {
           </>
         )
       }}
+      bg3d={Contact3D}
       bgSvg={(
         <svg width="500" height="500" viewBox="0 0 500 500">
           <g fill="none" stroke="#c8a87a" strokeWidth=".8">

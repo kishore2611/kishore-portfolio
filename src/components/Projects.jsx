@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Projects3D } from './section3d'
 
 const Projects = () => {
   const projects = [
@@ -56,6 +57,7 @@ const Projects = () => {
           </>
         )
       }}
+      bg3d={Projects3D}
       bgSvg={(
         <svg width="560" height="560" viewBox="0 0 560 560">
           <g fill="none" stroke="#2e2c30" strokeWidth=".8">

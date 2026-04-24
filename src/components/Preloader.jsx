@@ -6,13 +6,26 @@ export default function Preloader({ onComplete }) {
   const textRef = useRef(null)
   const progressRef = useRef(null)
   const countRef = useRef(null)
+  const completedRef = useRef(false)
 
   useEffect(() => {
     // Lock scroll
     document.body.style.overflow = 'hidden'
 
+    const forceComplete = () => {
+      if (!completedRef.current) {
+        completedRef.current = true
+        document.body.style.overflow = ''
+        if (onComplete) onComplete()
+      }
+    }
+
+    const fallbackTimer = setTimeout(forceComplete, 4500)
+
     const tl = gsap.timeline({
       onComplete: () => {
+        completedRef.current = true
+        clearTimeout(fallbackTimer)
         document.body.style.overflow = ''
         if (onComplete) onComplete()
       }
@@ -59,14 +72,17 @@ export default function Preloader({ onComplete }) {
       delay: 0.2
     })
 
-    return () => tl.kill()
+    return () => {
+      tl.kill()
+      clearTimeout(fallbackTimer)
+    }
   }, [onComplete])
 
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-dark-bg text-text-primary origin-top"
-      style={{ contain: 'strict' }}
+      style={{ contain: 'strict', willChange: 'transform' }}
     >
       <div className="flex flex-col items-center gap-6 z-10">
         <h1 

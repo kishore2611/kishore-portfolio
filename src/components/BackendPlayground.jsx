@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
 const BackendPlayground = () => {
@@ -281,4 +281,4 @@ const BackendPlayground = () => {
   )
 }
 
-export default BackendPlayground
+export default BackendPlayground

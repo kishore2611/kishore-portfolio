@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Process3D } from './section3d'
 
 const Process = () => {
   const steps = [
@@ -53,6 +54,7 @@ const Process = () => {
           </>
         )
       }}
+      bg3d={Process3D}
       bgSvg={(
         <svg width="400" height="400" viewBox="0 0 400 400">
           <g fill="none" stroke="#2e2c30" strokeWidth=".8" opacity=".2">

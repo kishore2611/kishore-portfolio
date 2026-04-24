@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { GitHub3D } from './section3d'
 
 const GITHUB_USER = 'kishore2611'
 
@@ -38,6 +39,7 @@ const GitHubContributions = () => {
           </>
         )
       }}
+      bg3d={GitHub3D}
       bgSvg={(
         <svg width="500" height="500" viewBox="0 0 500 500">
           <g fill="none" stroke="#2a2830" strokeWidth=".5">

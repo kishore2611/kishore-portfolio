@@ -1,4 +1,4 @@
-import { animate, createTimeline, stagger } from 'animejs';
+import { createTimeline, stagger } from 'animejs';
 import { scrollEngine } from '../utils/scrollEngine';
 
 /**

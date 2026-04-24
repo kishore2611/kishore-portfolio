@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo } from 'react'
+import { useState, useEffect, memo } from 'react'
 
 const Navigation = memo(() => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -26,7 +26,7 @@ const Navigation = memo(() => {
         }`}
     >
       <a href="#" className="font-display font-[800] text-[17px] text-white tracking-tight uppercase z-[110]">
-        K<span className="text-accent">.</span>S
+        KK<span className="text-accent">.</span>Dev
       </a>
 
       {/* Desktop Links */}
@@ -74,7 +74,7 @@ const Navigation = memo(() => {
               <a
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="font-display text-5xl font-bold text-white uppercase tracking-tighter hover:text-accent transition-colors"
+              className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white uppercase tracking-tighter hover:text-accent transition-colors"
               >
                 {item.name}
               </a>

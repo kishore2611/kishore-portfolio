@@ -113,9 +113,7 @@ const TechStack = () => {
                 </div>
 
                 <div className="space-y-8">
-                  {category.technologies.map((tech, techIndex) => {
-                    const globalIndex = categoryIndex * 10 + techIndex
-                    return (
+{category.technologies.map((tech, techIndex) => {\n                    const globalIndex = categoryIndex * 10 + techIndex\n                    return (
                       <div
                         key={tech.name}
                         className="relative group"

@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Testimonials3D } from './section3d'
 
 const Testimonials = () => {
   const reviews = [
@@ -29,6 +30,7 @@ const Testimonials = () => {
         { label: 'Peers' },
         { label: 'Clients' }
       ]}
+      bg3d={Testimonials3D}
       bgSvg={(
         <svg width="400" height="400" viewBox="0 0 400 400">
            <circle cx="200" cy="200" r="180" stroke="var(--color-accent)" strokeWidth=".5" strokeDasharray="4 4" opacity=".2" />

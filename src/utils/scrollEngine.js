@@ -24,6 +24,17 @@ class ScrollEngine {
       this.targetProgress = scrollY / maxScroll;
     }, { passive: true });
 
+    // Pause when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this._wasRunning = true;
+        cancelAnimationFrame(this._rafId);
+      } else if (this._wasRunning) {
+        this._wasRunning = false;
+        this.render();
+      }
+    });
+
     this.render();
   }
 

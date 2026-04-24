@@ -1,5 +1,6 @@
 import { memo, useState } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Skills3D } from './section3d'
 
 const Skills = () => {
   const [activeTab, setActiveTab] = useState('technical')
@@ -56,6 +57,7 @@ const Skills = () => {
           </>
         )
       }}
+      bg3d={Skills3D}
       bgSvg={(
         <svg width="580" height="580" viewBox="0 0 580 580">
           <g fill="none" stroke="#c8a87a" strokeWidth=".7">

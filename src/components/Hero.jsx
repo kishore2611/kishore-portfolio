@@ -5,14 +5,10 @@ import { scrollEngine } from '../utils/scrollEngine'
 import { updateMasterTimeline } from '../animations/masterTimeline'
 import { gsap } from 'gsap'
 
-const HeroNetworkCanvas = lazy(() => import('./HeroNetworkCanvas'))
+const HeroNetworkCanvas = lazy(() => import('./HeroNetworkCanvas'));
 
 const Hero = () => {
   const contentRef = useRef(null)
-  const badgeRef = useRef(null)
-  const title1Ref = useRef(null)
-  const title2Ref = useRef(null)
-  const textRef = useRef(null)
   const buttonsRef = useRef(null)
   const statsRef = useRef(null)
 
@@ -25,13 +21,11 @@ const Hero = () => {
   }
 
   useEffect(() => {
-    // We use GSAP for the entrance to ensure 100% reliability with React rendering
     const tl = gsap.timeline({
       onStart: () => scrollEngine.lock(),
       onComplete: () => scrollEngine.unlock()
     })
 
-    // Set initial states explicitly
     gsap.set('.hero-char', { opacity: 0, y: 40 })
     gsap.set(['.hero-reveal', '.hero-background'], { opacity: 0, y: 20 })
 
@@ -40,7 +34,6 @@ const Hero = () => {
       .to('.hero-reveal', { opacity: 1, y: 0, duration: 1, stagger: 0.15, ease: 'power3.out' }, '-=0.5')
       .to(statsRef.current, { opacity: 1, duration: 1 }, '-=0.5')
 
-    // Magnetic buttons
     const magneticBtns = buttonsRef.current.querySelectorAll('a, button')
     const handleMagnetic = (e) => {
       const btn = e.currentTarget
@@ -87,7 +80,7 @@ const Hero = () => {
           Hello(); — I'm
         </p>
 
-        <h1 className="display-font text-4xl md:text-[8rem] lg:text-[9rem] font-bold tracking-tighter leading-[0.88] mb-8 text-white uppercase">
+        <h1 className="display-font text-4xl md:text-[6rem] lg:text-[8rem] xl:text-[9rem] font-bold tracking-tighter leading-[0.88] mb-8 text-white uppercase">
           <span className="block overflow-hidden pb-4">
             {splitText("Kishore")}
           </span>
@@ -100,11 +93,11 @@ const Hero = () => {
           Versatile Node.js Developer, Architect & ECE Engineer crafting harmonious web experiences. I blend design elegance with technical finesse.
         </p>
 
-        <div ref={buttonsRef} className="hero-reveal flex flex-col sm:flex-row gap-6 justify-center items-center px-4 w-full max-w-lg mx-auto">
-          <a href="#projects" className="w-full sm:w-auto px-12 py-5 bg-accent text-dark font-extrabold font-mono text-[11px] uppercase tracking-[0.25em] rounded-[2px] hover:bg-accent-vibrant accent-glow transition-all duration-500 text-center shadow-[0_0_30px_rgba(200,168,122,0.2)]">
+        <div ref={buttonsRef} className="hero-reveal flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-2 sm:px-4 w-full max-w-lg mx-auto">
+          <a href="#projects" className="w-full sm:w-auto min-h-[44px] px-6 sm:px-12 py-3 sm:py-5 bg-accent text-dark font-extrabold font-mono text-sm sm:text-[11px] uppercase tracking-[0.25em] rounded-[2px] hover:bg-accent-vibrant accent-glow transition-all duration-500 text-center shadow-[0_0_30px_rgba(200,168,122,0.2)] flex items-center justify-center">
             View Work
           </a>
-          <a href="#contact" className="w-full sm:w-auto px-12 py-5 bg-transparent border border-white/10 text-white font-extrabold font-mono text-[11px] uppercase tracking-[0.25em] rounded-[2px] hover:border-accent hover:text-accent transition-all duration-500 text-center backdrop-blur-sm">
+          <a href="#contact" className="w-full sm:w-auto min-h-[44px] px-6 sm:px-12 py-3 sm:py-5 bg-transparent border border-white/10 text-white font-extrabold font-mono text-sm sm:text-[11px] uppercase tracking-[0.25em] rounded-[2px] hover:border-accent hover:text-accent transition-all duration-500 text-center backdrop-blur-sm flex items-center justify-center">
             Let's Talk
           </a>
         </div>
@@ -132,3 +125,4 @@ const Hero = () => {
 }
 
 export default Hero
+
