@@ -19,7 +19,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Rolldown (Vite 8) expects a function, not a package→chunk map
-        manualChunks(id) {
+        manualChunks: (id) => {
           if (!id.includes('node_modules')) return
           if (id.includes('react-syntax-highlighter')) return 'vendor-syntax'
           if (id.includes('lenis')) return 'vendor-lenis'

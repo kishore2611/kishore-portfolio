@@ -8,7 +8,7 @@ class ScrollEngine {
   constructor() {
     this.progress = 0;
     this.targetProgress = 0;
-    this.smoothing = 0.1; // Adjust for more/less lag
+    this.smoothing = 0.18; // More responsive, less lag
     this.isLocked = false;
     this.callbacks = [];
 
@@ -23,6 +23,17 @@ class ScrollEngine {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       this.targetProgress = scrollY / maxScroll;
     }, { passive: true });
+
+    // Pause when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this._wasRunning = true;
+        cancelAnimationFrame(this._rafId);
+      } else if (this._wasRunning) {
+        this._wasRunning = false;
+        this.render();
+      }
+    });
 
     this.render();
   }

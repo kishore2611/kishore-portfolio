@@ -1,0 +1,10 @@
+export { default as About3D } from './About3D'
+export { default as Skills3D } from './Skills3D'
+export { default as Process3D } from './Process3D'
+export { default as GitHub3D } from './GitHub3D'
+export { default as Stats3D } from './Stats3D'
+export { default as Projects3D } from './Projects3D'
+export { default as Experience3D } from './Experience3D'
+export { default as Testimonials3D } from './Testimonials3D'
+export { default as Contact3D } from './Contact3D'
+

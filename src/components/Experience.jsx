@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { SectionLayout } from './EditorialLayout'
+import { Experience3D } from './section3d'
 
 const Experience = () => {
   const experiences = [
@@ -66,6 +67,7 @@ const Experience = () => {
           </>
         )
       }}
+      bg3d={Experience3D}
       bgSvg={(
         <svg width="600" height="600" viewBox="0 0 600 600">
           <g fill="none" stroke="#c8a87a" strokeWidth=".7">

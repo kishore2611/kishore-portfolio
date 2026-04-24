@@ -1,4 +1,6 @@
-import { memo } from 'react'
+import { memo, useRef, useState, useEffect, Suspense } from 'react'
+import { Canvas } from '@react-three/fiber'
+import * as THREE from 'three'
 
 export const CodeCard = memo(({ filename, code }) => (
   <div className="code-card glass-card accent-glow !bg-dark/80 backdrop-blur-2xl">
@@ -45,6 +47,53 @@ export const SideLabels = memo(({ labels }) => (
   </div>
 ))
 
+/* ─── Section Background Canvas ─────────────────────────────────────────── */
+const SectionBgCanvas = ({ Bg3DComponent }) => {
+  const containerRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const scrollRef = useRef(0)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '10% 0px 10% 0px', threshold: 0.01 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  if (!isVisible) {
+    return <div ref={containerRef} className="absolute inset-0 pointer-events-none z-0" />
+  }
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-0">
+      <Canvas
+        camera={{ position: [0, 0, 8], fov: 50 }}
+        style={{ background: 'transparent' }}
+        gl={{
+          antialias: false,
+          alpha: true,
+          powerPreference: 'high-performance',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.0,
+        }}
+        dpr={Math.min(window.devicePixelRatio, 1.2)}
+        frameloop="always"
+      >
+        <ambientLight intensity={0.3} />
+        <directionalLight position={[5, 5, 3]} intensity={0.8} color="#c8a87a" />
+        <directionalLight position={[-3, -2, -3]} intensity={0.4} color="#7fb5c8" />
+        <Suspense fallback={null}>
+          <Bg3DComponent scrollRef={scrollRef} />
+        </Suspense>
+      </Canvas>
+    </div>
+  )
+}
+
 export const SectionLayout = ({ 
   id, 
   theme = 'dk', 
@@ -54,10 +103,14 @@ export const SectionLayout = ({
   sidenav = [], 
   codeCard,
   children,
-  bgSvg
+  bgSvg,
+  bg3d: Bg3DComponent
 }) => (
   <section id={id} className={theme}>
-    {bgSvg && <div className="absolute inset-0 pointer-events-none opacity-[0.07] flex items-center justify-center">{bgSvg}</div>}
+    {bgSvg && !Bg3DComponent && (
+      <div className="absolute inset-0 pointer-events-none opacity-[0.07] flex items-center justify-center">{bgSvg}</div>
+    )}
+    {Bg3DComponent && <SectionBgCanvas Bg3DComponent={Bg3DComponent} />}
     
     <div className="inner-container">
       <div className="rv-text">
@@ -76,7 +129,7 @@ export const SectionLayout = ({
         )}
       </div>
 
-      <div className="relative min-h-[520px] flex items-center justify-center">
+      <div className="relative min-h-[520px] flex items-center justify-center z-10">
         {children}
         {codeCard && <CodeCard {...codeCard} />}
       </div>

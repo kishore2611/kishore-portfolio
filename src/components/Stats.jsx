@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef } from 'react'
 import { SectionLayout } from './EditorialLayout'
 import { gsap } from 'gsap'
+import { Stats3D } from './section3d'
 
 const Stats = () => {
   const stats = [
@@ -52,6 +53,7 @@ const Stats = () => {
           </>
         )
       }}
+      bg3d={Stats3D}
       bgSvg={(
         <svg width="400" height="400" viewBox="0 0 400 400">
           <g fill="none" stroke="#2a2830" strokeWidth=".4">
